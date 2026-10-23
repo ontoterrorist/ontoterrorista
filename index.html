@@ -122,7 +122,7 @@ const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i)
 let cielo, nubes, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 3.0, T_RISE = 5.0, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const T_GO = 2.5, T_RISE = 2.5, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
 const SPR = {ax: 37, ay: 108.5, w: 75, h: 111, lamp: [36.5, 28.5], chimney: [37, 3]};
 const CAPTIONS = [];                                              // sin subtítulos
 
@@ -131,7 +131,7 @@ const CX = 312, CREST = 379, Y0 = 332, S0 = 46, S_MAX = 13;
 const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 function trainAt(t) {
-  const r = smooth(T_GO, T_RISE, t), u = clamp((t - T_RISE) / (T_ARRIVE - T_RISE));
+  const r = 1, u = clamp((t - T_GO) / (T_ARRIVE - T_GO));          // la locomotora se ve desde el primer cuadro
   const e = Math.pow(u, 1.8), s = 1 / (1 - (1 - 1 / S_MAX) * e);                          // distancia lineal → la escala crece cada vez más rápido
   const bob = Math.sin(t * 11) * .12 * s + Math.sin(t * 5.3) * .1 * s * u;
   return {x: CX + Math.sin(t * 3.1) * .08 * s * u, y: Y0 + S0 * s + (1 - r) * SPR.h + bob * .3, s, u, e, r, hid: r < 1};
@@ -206,7 +206,7 @@ function fit() {
 addEventListener('resize', fit); fit();
 
 function camera(u) {
-  ox = clamp(CX * S - W / 2, 0, WW * S - W); oy = (WH * S - H) * lerp(.62, 1, smooth(0, .8, u));
+  ox = clamp(CX * S - W / 2, 0, WW * S - W); oy = (WH * S - H) * .62;   // cámara fija
 }
 
 // ---------- humo ----------
@@ -365,7 +365,7 @@ function start() {
   phase = 'play'; t0 = performance.now(); last = t0; requestAnimationFrame(frame);
 }
 function replay() { stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
-function drawIdle() { camera(0); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; drawSky(performance.now()); ctx.setTransform(1, 0, 0, 1, 0, 0); }
+function drawIdle() { camera(0); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; drawSky(performance.now()); drawTrain(trainAt(0)); ctx.setTransform(1, 0, 0, 1, 0, 0); }
 function idleLoop() { if (phase !== 'gate') return; drawIdle(); requestAnimationFrame(idleLoop); }
 
 gate.addEventListener('click', start);
