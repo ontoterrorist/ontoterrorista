@@ -52,7 +52,7 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
 /* ---------- escenario de la cinemática ---------- */
 #stage{position:fixed;inset:0;z-index:10;background:#000;touch-action:none}
 #stage.done{display:none}
-#cv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated}
+#cv{position:absolute;inset:0;width:100%;height:100%}
 #sub{position:absolute;left:0;right:0;bottom:8%;text-align:center;padding:0 5%;pointer-events:none;
   font:clamp(10px,1.7vw,16px)/1.9 var(--px);color:var(--cream);text-shadow:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000;
   opacity:0;transition:opacity .5s}
@@ -115,22 +115,24 @@ function trainAt(t) {
   const bob = Math.sin(t * 11) * .12 * s + Math.sin(t * 5.3) * .1 * s * u;
   return {x: CX + Math.sin(t * 3.1) * .08 * s * u, y: Y0 + S0 * s + (1 - r) * SPR.h + bob * .3, s, u, r, hid: r < 1};
 }
+const sm = on => { ctx.imageSmoothingEnabled = on; ctx.imageSmoothingQuality = 'high'; };
 function drawTrain(tr) {
   ctx.save();
   if (tr.hid) { ctx.beginPath(); ctx.rect(0, 0, WW, CREST); ctx.clip(); }   // asoma por detrás de la cresta
+  sm(tr.s * S * SPR.w / tren.width < 1);                                      // reduce suave, amplía nítido
   ctx.drawImage(tren, Math.round(tr.x - SPR.ax * tr.s), Math.round(tr.y - SPR.ay * tr.s), Math.round(SPR.w * tr.s), Math.round(SPR.h * tr.s));
   ctx.restore();
 }
 // nubes: capa propia que deriva despacio; copias espejadas a los lados para que no haya corte
 const CLOUD_PX_S = 3;
 function drawSky(ms) {
-  ctx.drawImage(cielo, 0, 0);
+  sm(S / 2 < 1); ctx.drawImage(cielo, 0, 0, WW, WH);
   const dx = ms / 1000 * CLOUD_PX_S, base = Math.floor(-dx / WW);
   for (const n of [base, base + 1]) {
     const x = n * WW + dx;
     ctx.save();
-    if (((n % 2) + 2) % 2 === 1) { ctx.translate(x + WW, 0); ctx.scale(-1, 1); ctx.drawImage(nubes, 0, 0); }
-    else ctx.drawImage(nubes, x, 0);
+    if (((n % 2) + 2) % 2 === 1) { ctx.translate(x + WW, 0); ctx.scale(-1, 1); ctx.drawImage(nubes, 0, 0, WW, WH); }
+    else ctx.drawImage(nubes, x, 0, WW, WH);
     ctx.restore();
   }
 }
@@ -171,12 +173,13 @@ const tinkle = () => tone(2200 + Math.random() * 2600, .12, .035, 'sine', 8000);
 
 // ---------- estado ----------
 let phase = 'gate', t0 = 0, last = 0, beat = 0, hornA = false, hornB = false, crackFired = false;
-let parts = [], shards = [], rays = null, snap = null, shake = 0;
+let U = 1, parts = [], shards = [], rays = null, snap = null, shake = 0;
 
 function fit() {
-  H = 512; W = clamp(Math.round(H * innerWidth / innerHeight), 288, 1100);
+  const f = Math.min(Math.min(devicePixelRatio || 1, 2), 1300 / innerHeight, 2400 / innerWidth);      // lienzo a resolución de pantalla
+  W = Math.max(280, Math.round(innerWidth * f)); H = Math.max(280, Math.round(innerHeight * f));
   cv.width = W; cv.height = H;
-  S = Math.max(W / WW, H / WH);
+  S = Math.max(W / WW, H / WH); U = H / 512;
 }
 addEventListener('resize', fit); fit();
 
@@ -196,6 +199,7 @@ function spawnSmoke(tr, dt) {
   }
 }
 function drawSmoke(dt) {
+  sm(false);
   for (let i = parts.length - 1; i >= 0; i--) {
     const p = parts[i]; p.age += dt; if (p.age > p.life) { parts.splice(i, 1); continue; }
     p.x += p.vx * dt * (1 + p.age * .15); p.y += p.vy * dt; p.vy *= .995;
@@ -208,7 +212,7 @@ function drawSmoke(dt) {
 
 // ---------- cristal ----------
 function buildGlass() {
-  const cx = W * .5 + (Math.random() * 30 - 15), cy = H * .46, N = 15, RING = [0, 34, 90, 170, 300, 520, 1500];
+  const cx = W * .5 + (Math.random() * 30 - 15), cy = H * .46, N = 15, RING = [0, 34, 90, 170, 300, 520, 1500].map(v => v * U);
   rays = {cx, cy, N, pts: []};
   for (let j = 0; j < N; j++) {
     const th = (j + (Math.random() - .5) * .5) / N * Math.PI * 2, row = [];
@@ -222,12 +226,12 @@ function buildGlass() {
     const poly = k === 0 ? [a, c, d] : [a, b, c, d];
     const mx = poly.reduce((s, p) => s + p[0], 0) / poly.length, my = poly.reduce((s, p) => s + p[1], 0) / poly.length;
     const dx = mx - cx, dy = my - cy, dist = Math.hypot(dx, dy) || 1;
-    shards.push({poly, mx, my, k, x: 0, y: 0, r: 0, vx: dx / dist * (20 + Math.random() * 50), vy: -20 - Math.random() * 60,
+    shards.push({poly, mx, my, k, x: 0, y: 0, r: 0, vx: dx / dist * (20 + Math.random() * 50) * U, vy: (-20 - Math.random() * 60) * U,
       vr: (Math.random() - .5) * 3, delay: .1 + k * .13 + Math.random() * .35, fallen: false});
   }
 }
 function drawCracks(prog) {
-  ctx.lineWidth = 1.5; ctx.lineCap = 'square';
+  ctx.lineWidth = 1.5 * U; ctx.lineCap = 'square';
   const edge = (p, q, vis) => { ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(lerp(p[0], q[0], vis), lerp(p[1], q[1], vis)); ctx.stroke(); };
   for (const col of [['rgba(0,0,0,.65)', 1.5], ['#f4f1e6', 0]]) {
     ctx.strokeStyle = col[0];
@@ -237,7 +241,7 @@ function drawCracks(prog) {
       const vr = clamp(prog * 6 - k * 1.05 - .5);
       if (k > 0 && vr > 0) edge(rays.pts[j][k], rays.pts[(j + 1) % rays.N][k], vr);
     }
-    ctx.translate(1, 1);
+    ctx.translate(U, U);
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
@@ -246,8 +250,8 @@ function drawShards(t) {
   let alive = 0;
   for (const s of shards) {
     const tt = t - s.delay; let x = 0, y = 0, r = 0;
-    if (tt > 0) { x = s.vx * tt; y = s.vy * tt + 620 * tt * tt; r = s.vr * tt; }
-    if (y + s.my > H + 700 || x + s.mx < -700 || x + s.mx > W + 700) continue;
+    if (tt > 0) { x = s.vx * tt; y = s.vy * tt + 620 * U * tt * tt; r = s.vr * tt; }
+    if (y + s.my > H + 700 * U || x + s.mx < -700 * U || x + s.mx > W + 700 * U) continue;
     alive++;
     if (tt > 0 && !s.fallen) { s.fallen = true; if (Math.random() < .35) tinkle(); }
     ctx.save(); ctx.translate(s.mx + x, s.my + y); ctx.rotate(r);
@@ -255,7 +259,7 @@ function drawShards(t) {
     ctx.drawImage(snap, -s.mx, -s.my);
     ctx.restore();
     ctx.save(); ctx.translate(s.mx + x, s.my + y); ctx.rotate(r);   // filo claro del cristal
-    ctx.strokeStyle = 'rgba(244,241,230,.8)'; ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.strokeStyle = 'rgba(244,241,230,.8)'; ctx.lineWidth = 1.5 * U; ctx.beginPath();
     s.poly.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0] - s.mx, p[1] - s.my)); ctx.closePath(); ctx.stroke(); ctx.restore();
   }
   return alive;
@@ -276,7 +280,7 @@ function scene(t, dt) {
   camera(tr.u);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   ctx.imageSmoothingEnabled = false;
-  const sx = Math.round((Math.random() - .5) * shake), sy = Math.round((Math.random() - .5) * shake);
+  const sx = Math.round((Math.random() - .5) * shake * U), sy = Math.round((Math.random() - .5) * shake * U);
   ctx.setTransform(S, 0, 0, S, -ox + sx, -oy + sy);
   drawSky(performance.now());
   ctx.fillStyle = 'rgba(255,255,255,.5)';                                   // brillo del mar
