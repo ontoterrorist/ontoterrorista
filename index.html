@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ontoterrorista</title>
+<meta name="description" content="Un tren llega por la colina, la pantalla se quiebra y aparece la biografía académica de ontoterrorista.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0d1430; --panel:#16224a; --panel2:#1d2d5e; --sky:#6fa6e8; --cream:#f3e9d2;
+  --orange:#e8743b; --leaf:#8fb85a; --ink:#e9e4d4; --mute:#9db0d8;
+  --px:'Press Start 2P',ui-monospace,monospace; --body:'Pixelify Sans',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body)}
+body{min-height:100vh}
+
+/* ---------- biografía (debajo del escenario) ---------- */
+#bio{position:relative;min-height:100vh;padding:56px 16px 80px;
+  background:linear-gradient(rgba(9,14,36,.9),rgba(9,14,36,.94)),url(bg.png) center/cover fixed;
+  image-rendering:pixelated}
+#bio .wrap{max-width:860px;margin:0 auto}
+.kicker{font:600 18px/1.6 var(--body);color:var(--orange);letter-spacing:.08em;margin:0 0 18px}
+h1{font:clamp(22px,6vw,52px)/1.15 var(--px);margin:0 0 22px;color:var(--cream);
+  text-shadow:4px 4px 0 var(--orange),8px 8px 0 #7a2f12;word-break:break-word}
+.lead{font-size:clamp(18px,2.6vw,22px);line-height:1.55;max-width:46ch;margin:0 0 40px;color:var(--ink)}
+section{background:var(--panel);margin:0 0 28px;padding:22px 22px 14px;
+  box-shadow:0 0 0 4px var(--night),0 0 0 8px var(--sky),8px 8px 0 8px #08102a}
+h2{font:600 20px/1.5 var(--body);letter-spacing:.12em;color:var(--orange);margin:0 0 16px;text-transform:uppercase}
+.row{display:grid;grid-template-columns:7.5em 1fr;gap:4px 18px;padding:10px 0;border-top:2px dashed #2c3f7a}
+.row:first-of-type{border-top:0}
+.when{color:var(--sky);font-weight:600}
+.what{line-height:1.45;font-size:18px}
+.what small{display:block;color:var(--mute);font-size:16px;margin-top:2px}
+.what a{color:var(--leaf)}
+ol.pubs{margin:0;padding:0;list-style:none;counter-reset:p}
+ol.pubs li{counter-increment:p;position:relative;padding:10px 0 10px 40px;border-top:2px dashed #2c3f7a;line-height:1.45;font-size:18px}
+ol.pubs li:first-child{border-top:0}
+ol.pubs li::before{content:counter(p);position:absolute;left:0;top:10px;font:12px/1 var(--px);color:var(--night);
+  background:var(--orange);width:26px;height:26px;display:grid;place-items:center}
+.tags{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 12px}
+.tags span{font:600 15px/1 var(--body);letter-spacing:.06em;background:var(--panel2);color:var(--cream);padding:9px 10px;box-shadow:inset 0 0 0 2px var(--sky)}
+.again{font:11px/1 var(--px);color:var(--night);background:var(--cream);border:0;padding:14px 16px;cursor:pointer;
+  box-shadow:4px 4px 0 var(--orange)}
+.again:hover{background:#fff}.again:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--orange)}
+footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute);font-size:16px;margin-top:36px}
+@media (max-width:560px){.row{grid-template-columns:1fr}.when{font-size:16px}}
+
+/* ---------- escenario de la cinemática ---------- */
+#stage{position:fixed;inset:0;z-index:10;background:#000;touch-action:none}
+#stage.done{display:none}
+#cv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated}
+#sub{position:absolute;left:0;right:0;bottom:8%;text-align:center;padding:0 5%;pointer-events:none;
+  font:clamp(10px,1.7vw,16px)/1.9 var(--px);color:var(--cream);text-shadow:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000;
+  opacity:0;transition:opacity .5s}
+#sub.on{opacity:1}
+#gate{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:rgba(3,6,20,.55);cursor:pointer;
+  padding:20px}
+#gate h1{font-size:clamp(20px,5.4vw,56px);margin:0 0 26px}
+#gate p{font:clamp(10px,1.6vw,14px)/1.8 var(--px);color:var(--cream);margin:0;animation:blink 1.1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+#skip,#mute{position:absolute;top:14px;font:10px/1 var(--px);color:var(--cream);background:rgba(0,0,0,.55);border:2px solid var(--cream);
+  padding:10px 12px;cursor:pointer;opacity:.0;pointer-events:none}
+#skip{right:14px}#mute{left:14px}
+#stage.playing #skip,#stage.playing #mute{opacity:.8;pointer-events:auto}
+#skip:hover,#mute:hover{opacity:1}
+@media (prefers-reduced-motion:reduce){#stage{display:none}}
+</style>
+</head>
+<body>
+
+<main id="bio">
+  <div class="wrap">
+    <p class="kicker">▌ BIOGRAFÍA ACADÉMICA</p>
+    <h1>ontoterrorista</h1>
+    <p class="lead">Filósofo y profesor de filosofía y argumentación. Licenciado en Filosofía con Distinción Máxima por la Universidad de Chile; cursa el Magíster en Filosofía de las Ciencias en la USACH, con tesis en curso sobre ciencia cognitiva, explicación mecanicista y métodos formales.</p>
+
+    <section>
+      <h2>Formación</h2>
+      <div class="row"><div class="when">2023 – tesis</div><div class="what">Magíster en Filosofía de las Ciencias<small>Universidad de Santiago de Chile · filosofía de la ciencia cognitiva, explicación mecanicista, métodos formales</small></div></div>
+      <div class="row"><div class="when">hasta 2022</div><div class="what">Licenciatura en Filosofía, Distinción Máxima<small>Universidad de Chile · filosofía analítica, lógica, filosofía de la mente</small></div></div>
+      <div class="row"><div class="when">2024</div><div class="what">Monitor de Ajedrez<small>Federación de Ajedrez de Chile</small></div></div>
+    </section>
+
+    <section>
+      <h2>Docencia</h2>
+      <div class="row"><div class="when">2025 – hoy</div><div class="what">Filosofía y Debate y Argumentación<small>Colegio Andino Montessori · enseñanza media, aprendizaje activo basado en evidencia</small></div></div>
+      <div class="row"><div class="when">mar – jun 2024</div><div class="what">Profesor ayudante, «Métodos Formales»<small>Magíster en Filosofía de la Ciencia, USACH</small></div></div>
+      <div class="row"><div class="when">2023 – 2024</div><div class="what">Filosofía y Orientación<small>Colegio Gerónimo de Alderete</small></div></div>
+      <div class="row"><div class="when">abr – jun 2023</div><div class="what">Filosofía<small>Centro Educacional Niño Dios de Malloco</small></div></div>
+      <div class="row"><div class="when">2022 – 2023</div><div class="what">Filosofía, programa completo para todos los niveles de media<small>Escuela Premilitar Capitán Ignacio Carrera Pinto</small></div></div>
+    </section>
+
+    <section>
+      <h2>Publicaciones</h2>
+      <ol class="pubs">
+        <li>Salas Candia, G., Villalobos Kirmayr, M. &amp; ontoterrorista (2026). Computacionalismo después del dinamicismo y el enactivismo: una respuesta mecanicista. <i>Límite</i> (Arica), 21. <a href="https://doi.org/10.64966/rl.2196">doi.org/10.64966/rl.2196</a></li>
+        <li>ontoterrorista (2019). La explicación mecanicista en ciencias cognitivas. <i>Ciencia Cognitiva</i>, 13:3, 68–70.</li>
+        <li>Medel, R., Apablaza, A., Donoso, G., Gutiérrez, B. &amp; ontoterrorista (en prensa). Reseña de <i>The Philosophy of Evolutionary Theory</i>. <i>Ludus Vitalis</i>.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Ponencias y proyectos</h2>
+      <div class="row"><div class="when">2016 – 2026</div><div class="what">Más de una docena de ponencias en congresos y jornadas nacionales<small>incluido un póster en la conferencia anual de la ASSC (2026)</small></div></div>
+      <div class="row"><div class="when">2023 – 2025</div><div class="what">Organizador general del Coloquio de Estudiantes de Filosofía Analítica<small>tres ediciones consecutivas: VII (PUC), VIII y IX (USACH)</small></div></div>
+      <div class="row"><div class="when">—</div><div class="what">Equipo editorial, Revista Fulcro n.º 2<small>Postgrado y Postítulo, Universidad de Chile</small></div></div>
+    </section>
+
+    <section>
+      <h2>Áreas y membresías</h2>
+      <div class="tags"><span>FILOSOFÍA DE LA CIENCIA COGNITIVA</span><span>EXPLICACIÓN MECANICISTA</span><span>FENOMENOLOGÍA</span><span>MENTE EXTENDIDA</span><span>LÓGICA Y MÉTODOS FORMALES</span><span>DIDÁCTICA DE LA FILOSOFÍA</span></div>
+      <div class="tags"><span>ACHIF</span><span>SOCHIFIC</span><span>ACHEFA</span><span>SCIENTIA</span></div>
+    </section>
+
+    <footer><button class="again" id="again">▶ VER LLEGAR EL TREN</button><span>pixel art · Pixelorama · 2026</span></footer>
+  </div>
+</main>
+
+<div id="stage" aria-label="Cinemática de introducción">
+  <canvas id="cv"></canvas>
+  <div id="sub" aria-live="polite"></div>
+  <button id="mute" aria-label="Silenciar">SONIDO: SÍ</button>
+  <button id="skip">SALTAR ▶▶</button>
+  <div id="gate" role="button" tabindex="0"><div><h1>ontoterrorista</h1><p>▶ PULSA PARA ABORDAR</p></div></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const WW = 768, WH = 512;                       // mundo = la referencia a media resolución
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const stage = document.getElementById('stage'), sub = document.getElementById('sub');
+const gate = document.getElementById('gate');
+const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = n; });
+let bg, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
+
+// ---------- parámetros de la cinemática ----------
+const T_GO = 3.0, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const SPR = {ax: 30, ay: 68.5, w: 125, h: 77, lights: [[14, 50], [46, 50]], smoke: [[30, 7], [62, 16], [92, 30]]};
+const CAPTIONS = [[1.0, 'Hay una colina. Hay un mar.'], [4.2, 'Y algo que viene por el riel.'], [8.6, 'Ninguna estación lo esperaba.'], [12.6, 'Nadie anunció su llegada.'], [14.4, '']];
+
+// camino del ancla del tren (frente-abajo): [u, x, y, escala]
+const NODES = [[0, 150, 236, 1], [.16, 212, 272, 1.55], [.38, 325, 344, 2.8], [.6, 460, 428, 4.8], [.8, 585, 497, 8], [1, 0, 0, 22]];
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+function trainAt(u) {
+  const cx = (ox + W / 2) / S, cy = (oy + H / 2) / S;
+  const N = NODES.map((n, i) => i === NODES.length - 1 ? [1, cx + 5 * 22, cy + 400, 22] : n);
+  let i = 0; while (i < N.length - 2 && u > N[i + 1][0]) i++;
+  const a = N[i], b = N[i + 1], t = clamp((u - a[0]) / (b[0] - a[0]));
+  const e = t * t * (3 - 2 * t) * .35 + t * .65;
+  return {x: lerp(a[1], b[1], e), y: lerp(a[2], b[2], e), s: Math.exp(lerp(Math.log(a[3]), Math.log(b[3]), e))};
+}
+
+// ---------- sonido procedural ----------
+let AC, master, noise, rumble, rumbleG, rumbleF, muted = false;
+function audioInit() {
+  if (AC) return;
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = muted ? 0 : .7; master.connect(AC.destination);
+    noise = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
+    const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    rumble = AC.createBufferSource(); rumble.buffer = noise; rumble.loop = true;
+    rumbleF = AC.createBiquadFilter(); rumbleF.type = 'lowpass'; rumbleF.frequency.value = 120;
+    rumbleG = AC.createGain(); rumbleG.gain.value = 0;
+    rumble.connect(rumbleF).connect(rumbleG).connect(master); rumble.start();
+  } catch (e) { AC = null; }
+}
+function burst(freq, q, dur, vol, type = 'bandpass') {
+  if (!AC) return;
+  const s = AC.createBufferSource(); s.buffer = noise; s.playbackRate.value = .6 + Math.random() * .8;
+  const f = AC.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  const g = AC.createGain(); g.gain.setValueAtTime(vol, AC.currentTime); g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + dur);
+  s.connect(f).connect(g).connect(master); s.start(0, Math.random()); s.stop(AC.currentTime + dur + .05);
+}
+function tone(freq, dur, vol, type = 'sawtooth', cut = 1400) {
+  if (!AC) return;
+  const o = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain(), t = AC.currentTime;
+  o.type = type; o.frequency.value = freq; f.type = 'lowpass'; f.frequency.value = cut;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .06); g.gain.setValueAtTime(vol, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur);
+  o.connect(f).connect(g).connect(master); o.start(t); o.stop(t + dur + .05);
+}
+const horn = () => { tone(233, 1.3, .16); tone(294, 1.3, .14); tone(349, 1.3, .08); };
+const crackSound = () => { burst(3500, .6, .5, .9, 'highpass'); burst(200, .5, .35, .9, 'lowpass');
+  for (let i = 0; i < 9; i++) setTimeout(() => burst(2500 + Math.random() * 3500, 8, .09, .35), 40 + i * 55 + Math.random() * 50); };
+const tinkle = () => tone(2200 + Math.random() * 2600, .12, .035, 'sine', 8000);
+
+// ---------- estado ----------
+let phase = 'gate', t0 = 0, last = 0, beat = 0, hornA = false, hornB = false, crackFired = false;
+let parts = [], shards = [], rays = null, snap = null, shake = 0;
+
+function fit() {
+  H = 512; W = clamp(Math.round(H * innerWidth / innerHeight), 288, 1100);
+  cv.width = W; cv.height = H;
+  S = Math.max(W / WW, H / WH);
+}
+addEventListener('resize', fit); fit();
+
+function camera(train) {
+  const vw = W / S, vh = H / S;
+  const fx = train ? train.x : WW * .35;
+  ox = clamp(fx * S - W * .42, 0, WW * S - W); oy = (WH * S - H) * .8;
+}
+
+// ---------- humo ----------
+function spawnSmoke(tr, dt) {
+  const rate = 26 * dt * (.6 + tr.s / 8);
+  parts.rate = (parts.rate || 0) + rate;
+  while (parts.rate >= 1) {
+    parts.rate--;
+    const p = SPR.smoke[(Math.random() * SPR.smoke.length) | 0];
+    parts.push({x: tr.x + (p[0] - SPR.ax) * tr.s, y: tr.y + (p[1] - SPR.ay) * tr.s, vx: -14 - Math.random() * 12, vy: -16 - Math.random() * 12,
+      age: 0, life: 2.4 + Math.random() * 1.2, sz: tr.s * (.55 + Math.random() * .35), dust: false});
+  }
+  if (Math.random() < dt * 10) parts.push({x: tr.x + (Math.random() * 24 - 12) * tr.s * .5, y: tr.y - 1, vx: -8 - Math.random() * 6, vy: -4 - Math.random() * 5,
+    age: 0, life: 1.4, sz: tr.s * .32, dust: true});
+}
+function drawSmoke(dt) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.age += dt; if (p.age > p.life) { parts.splice(i, 1); continue; }
+    p.x += p.vx * dt * (1 + p.age * .15); p.y += p.vy * dt; p.vy *= .995;
+    const f = Math.min(7, (p.age / p.life * 8) | 0), sz = 32 * p.sz * (1 + p.age * .25);
+    ctx.globalAlpha = p.dust ? .55 : .92;
+    ctx.drawImage(humo, f * 32, 0, 32, 32, Math.round(p.x - sz / 2), Math.round(p.y - sz / 2), Math.round(sz), Math.round(sz));
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- cristal ----------
+function buildGlass() {
+  const cx = W * .5 + (Math.random() * 30 - 15), cy = H * .46, N = 15, RING = [0, 34, 90, 170, 300, 520, 1500];
+  rays = {cx, cy, N, pts: []};
+  for (let j = 0; j < N; j++) {
+    const th = (j + (Math.random() - .5) * .5) / N * Math.PI * 2, row = [];
+    for (let k = 0; k < RING.length; k++) row.push(k ? [cx + Math.cos(th + (Math.random() - .5) * .07) * RING[k] * (.82 + Math.random() * .36),
+      cy + Math.sin(th + (Math.random() - .5) * .07) * RING[k] * (.82 + Math.random() * .36)] : [cx, cy]);
+    rays.pts.push(row);
+  }
+  shards = [];
+  for (let j = 0; j < N; j++) for (let k = 0; k < RING.length - 1; k++) {
+    const a = rays.pts[j][k], b = rays.pts[(j + 1) % N][k], c = rays.pts[(j + 1) % N][k + 1], d = rays.pts[j][k + 1];
+    const poly = k === 0 ? [a, c, d] : [a, b, c, d];
+    const mx = poly.reduce((s, p) => s + p[0], 0) / poly.length, my = poly.reduce((s, p) => s + p[1], 0) / poly.length;
+    const dx = mx - cx, dy = my - cy, dist = Math.hypot(dx, dy) || 1;
+    shards.push({poly, mx, my, k, x: 0, y: 0, r: 0, vx: dx / dist * (20 + Math.random() * 50), vy: -20 - Math.random() * 60,
+      vr: (Math.random() - .5) * 3, delay: .1 + k * .13 + Math.random() * .35, fallen: false});
+  }
+}
+function drawCracks(prog) {
+  ctx.lineWidth = 1.5; ctx.lineCap = 'square';
+  const edge = (p, q, vis) => { ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(lerp(p[0], q[0], vis), lerp(p[1], q[1], vis)); ctx.stroke(); };
+  for (const col of [['rgba(0,0,0,.65)', 1.5], ['#f4f1e6', 0]]) {
+    ctx.strokeStyle = col[0];
+    for (let j = 0; j < rays.N; j++) for (let k = 0; k < 5; k++) {
+      const vis = clamp(prog * 6 - k * 1.05);
+      if (vis > 0) edge(rays.pts[j][k], rays.pts[j][k + 1], vis);
+      const vr = clamp(prog * 6 - k * 1.05 - .5);
+      if (k > 0 && vr > 0) edge(rays.pts[j][k], rays.pts[(j + 1) % rays.N][k], vr);
+    }
+    ctx.translate(1, 1);
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawShards(t) {
+  ctx.clearRect(0, 0, W, H);
+  let alive = 0;
+  for (const s of shards) {
+    const tt = t - s.delay; let x = 0, y = 0, r = 0;
+    if (tt > 0) { x = s.vx * tt; y = s.vy * tt + 620 * tt * tt; r = s.vr * tt; }
+    if (y + s.my > H + 700 || x + s.mx < -700 || x + s.mx > W + 700) continue;
+    alive++;
+    if (tt > 0 && !s.fallen) { s.fallen = true; if (Math.random() < .35) tinkle(); }
+    ctx.save(); ctx.translate(s.mx + x, s.my + y); ctx.rotate(r);
+    ctx.beginPath(); s.poly.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0] - s.mx, p[1] - s.my)); ctx.closePath(); ctx.clip();
+    ctx.drawImage(snap, -s.mx, -s.my);
+    ctx.restore();
+    ctx.save(); ctx.translate(s.mx + x, s.my + y); ctx.rotate(r);   // filo claro del cristal
+    ctx.strokeStyle = 'rgba(244,241,230,.8)'; ctx.lineWidth = 1.5; ctx.beginPath();
+    s.poly.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0] - s.mx, p[1] - s.my)); ctx.closePath(); ctx.stroke(); ctx.restore();
+  }
+  return alive;
+}
+
+// ---------- escena ----------
+function glow(tr, u) {
+  const k = smooth(.55, 1, u); if (k <= 0) return;
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [lx, ly] of SPR.lights) {
+    const x = tr.x + (lx - SPR.ax) * tr.s, y = tr.y + (ly - SPR.ay) * tr.s;
+    [[1.7, .10], [1.1, .16], [.6, .28], [.28, .55]].forEach(([r, a]) => {
+      ctx.fillStyle = `rgba(255,224,160,${a * k})`; ctx.beginPath(); ctx.arc(Math.round(x), Math.round(y), r * tr.s * 3.2, 0, 7); ctx.fill();
+    });
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+function scene(t, dt) {
+  const u = clamp((t - T_GO) / (T_ARRIVE - T_GO)), up = Math.pow(u, 1.7);
+  const tr = t >= T_GO ? trainAt(up) : trainAt(0);
+  camera(tr);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = false;
+  const sx = Math.round((Math.random() - .5) * shake), sy = Math.round((Math.random() - .5) * shake);
+  ctx.setTransform(S, 0, 0, S, -ox + sx, -oy + sy);
+  ctx.drawImage(bg, 0, 0);
+  // brillo del mar
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  for (let i = 0; i < 18; i++) { const q = (t * .7 + i * 7.31) % 1; if (q < .5) ctx.fillRect(520 + ((i * 97) % 240) | 0, 262 + ((i * 53) % 110) | 0, 3, 1); }
+  if (t >= T_GO) spawnSmoke(tr, dt);
+  drawSmoke(dt);
+  ctx.drawImage(tren, Math.round(tr.x - SPR.ax * tr.s), Math.round(tr.y - SPR.ay * tr.s), Math.round(SPR.w * tr.s), Math.round(SPR.h * tr.s));
+  glow(tr, up);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  // viñeta y apertura desde negro
+  const g = ctx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const fade = 1 - clamp(t / 1.6); if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
+  shake = smooth(.5, 1, up) * 7;
+  // sonido ligado al movimiento
+  if (AC && t >= T_GO) {
+    rumbleG.gain.value = lerp(.05, .85, Math.pow(up, .8)); rumbleF.frequency.value = 90 + 260 * up;
+    beat += dt * (3 + 11 * up); if (beat >= 1) { beat--; burst(900 + up * 500, 2.5, .05, .06 + .5 * up); burst(110, 1, .08, .1 + .6 * up, 'lowpass'); }
+  }
+  if (t > 8.6 && !hornA) { hornA = true; horn(); }
+  if (t > 12.6 && !hornB) { hornB = true; horn(); }
+}
+
+function caption(t) {
+  let txt = ''; for (const [at, s] of CAPTIONS) if (t >= at) txt = s;
+  if (sub.textContent !== txt) { sub.classList.remove('on'); setTimeout(() => { sub.textContent = txt; if (txt) sub.classList.add('on'); }, 250); }
+}
+
+function frame(now) {
+  if (phase === 'gate' || phase === 'off') return;
+  const dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
+  const t = phase === 'play' && window.__hold !== undefined ? window.__hold : (now - t0) / 1000;
+  if (phase === 'play') {
+    scene(t, dt); caption(t);
+    if (t >= T_ARRIVE) {
+      phase = 'crack'; t0 = now; snap = document.createElement('canvas'); snap.width = W; snap.height = H;
+      snap.getContext('2d').drawImage(cv, 0, 0); buildGlass(); crackSound(); sub.classList.remove('on'); shake = 14;
+      if (AC) { rumbleG.gain.setTargetAtTime(0, AC.currentTime, .15); }
+    }
+  } else if (phase === 'crack') {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(snap, 0, 0);
+    const prog = clamp(t / T_CRACK); drawCracks(prog);
+    if (t < .12) { ctx.fillStyle = `rgba(255,255,255,${.8 * (1 - t / .12)})`; ctx.fillRect(0, 0, W, H); }
+    if (t >= T_CRACK) { phase = 'fall'; t0 = now; stage.style.background = 'transparent'; document.getElementById('bio').scrollIntoView(); }
+  } else if (phase === 'fall') {
+    stage.style.background = 'transparent';
+    if (drawShards(t) === 0 || t > 4) { finish(); return; }
+  }
+  requestAnimationFrame(frame);
+}
+
+function finish() { phase = 'off'; stage.classList.add('done'); if (AC && rumbleG) rumbleG.gain.value = 0; }
+
+function start() {
+  audioInit(); if (AC && AC.state === 'suspended') AC.resume();
+  gate.style.display = 'none'; stage.classList.add('playing'); stage.style.background = '#000';
+  parts = []; shards = []; beat = 0; hornA = hornB = crackFired = false; shake = 0; sub.textContent = ''; sub.classList.remove('on');
+  document.documentElement.scrollTop = 0; window.scrollTo(0, 0);
+  phase = 'play'; t0 = performance.now(); last = t0; requestAnimationFrame(frame);
+}
+function replay() { stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; drawIdle(); window.scrollTo(0, 0); }
+function drawIdle() { camera(null); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; ctx.drawImage(bg, 0, 0); ctx.drawImage(tren, 120, 167); ctx.setTransform(1, 0, 0, 1, 0, 0); }
+
+gate.addEventListener('click', start);
+gate.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') start(); });
+document.getElementById('skip').addEventListener('click', e => { e.stopPropagation(); finish(); });
+document.getElementById('mute').addEventListener('click', e => {
+  muted = !muted; e.target.textContent = 'SONIDO: ' + (muted ? 'NO' : 'SÍ'); if (master) master.gain.value = muted ? 0 : .7;
+});
+document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); });
+
+Promise.all([img('bg.png'), img('tren.png'), img('humo.png')]).then(([a, b, c]) => {
+  bg = a; tren = b; humo = c; drawIdle();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { phase = 'off'; stage.classList.add('done'); }
+  addEventListener('resize', () => { if (phase === 'gate') drawIdle(); });
+  window.__ono = {get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};
+});
+})();
+</script>
+</body>
+</html>
