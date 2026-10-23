@@ -122,7 +122,7 @@ const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i)
 let cielo, nubes, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 2.5, T_RISE = 2.5, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const T_GO = 0, T_RISE = 0, T_ARRIVE = 14.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
 const SPR = {ax: 37, ay: 108.5, w: 75, h: 111, lamp: [36.5, 28.5], chimney: [37, 3]};
 const CAPTIONS = [];                                              // sin subtítulos
 
@@ -132,7 +132,7 @@ const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a = 0, b = 1) => Math.min
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 function trainAt(t) {
   const r = 1, u = clamp((t - T_GO) / (T_ARRIVE - T_GO));          // la locomotora se ve desde el primer cuadro
-  const e = Math.pow(u, 1.8), s = 1 / (1 - (1 - 1 / S_MAX) * e);                          // distancia lineal → la escala crece cada vez más rápido
+  const e = .28 * u + .72 * Math.pow(u, 2.3), s = 1 / (1 - (1 - 1 / S_MAX) * e);                          // distancia lineal → la escala crece cada vez más rápido
   const bob = Math.sin(t * 11) * .12 * s + Math.sin(t * 5.3) * .1 * s * u;
   return {x: CX + Math.sin(t * 3.1) * .08 * s * u, y: Y0 + S0 * s + (1 - r) * SPR.h + bob * .3, s, u, e, r, hid: r < 1};
 }
@@ -322,9 +322,9 @@ function scene(t, dt) {
     rumbleG.gain.value = lerp(.04, 1.7, Math.pow(up, .55)); rumbleF.frequency.value = 90 + 520 * up;
     beat += dt * (2.5 + 17 * up); if (beat >= 1) { beat--; burst(900 + up * 700, 2.5, .05, .05 + 1.1 * up * up); burst(110, 1, .09, .08 + 1.1 * up, 'lowpass'); burst(260, .8, .16, .05 + .9 * up, 'lowpass'); }
   }
-  if (t > 8.6 && !hornA) { hornA = true; horn(.8); }
-  if (t > 12.2 && !hornB) { hornB = true; horn(1.5); }
-  if (t > 14.0 && !hornC) { hornC = true; horn(2.2); }
+  if (t > 7.5 && !hornA) { hornA = true; horn(.8); }
+  if (t > 10.8 && !hornB) { hornB = true; horn(1.5); }
+  if (t > 12.8 && !hornC) { hornC = true; horn(2.2); }
 }
 
 function caption(t) {
@@ -380,7 +380,7 @@ Promise.all([img('cielo.png'), img('nubes.png'), img('tren.png'), img('humo.png'
   cielo = a; nubes = n; tren = b; humo = c; idleLoop();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { phase = 'off'; stage.classList.add('done'); }
   
-  window.__ono = {get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};
+  window.__ono = {trainAt, get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};
 });
 })();
 </script>
