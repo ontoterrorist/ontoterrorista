@@ -119,7 +119,7 @@ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage'), sub = document.getElementById('sub');
 const gate = document.getElementById('gate');
 const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = n; });
-let cielo, nubes, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
+let cielo, nubes, primer, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
 const T_GO = 0, T_RISE = 0, T_ARRIVE = 14.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
@@ -156,6 +156,7 @@ function drawSky(ms) {
     else ctx.drawImage(nubes, x, 0, WW, WH);
     ctx.restore();
   }
+  ctx.drawImage(primer, 0, 0, WW, WH);                                   // copas de los pinos: por delante de las nubes
 }
 
 // ---------- sonido procedural ----------
@@ -376,8 +377,8 @@ document.getElementById('mute').addEventListener('click', e => {
 });
 document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); });
 
-Promise.all([img('cielo.png'), img('nubes.png'), img('tren.png'), img('humo.png')]).then(([a, n, b, c]) => {
-  cielo = a; nubes = n; tren = b; humo = c; idleLoop();
+Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('tren.png'), img('humo.png')]).then(([a, n, pp, b, c]) => {
+  cielo = a; nubes = n; primer = pp; tren = b; humo = c; idleLoop();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { phase = 'off'; stage.classList.add('done'); }
   
   window.__ono = {trainAt, get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};

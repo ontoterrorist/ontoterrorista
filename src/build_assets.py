@@ -39,6 +39,8 @@ for y in range(0, 560):
 cloud[300:549, 560:776] = False
 cm = Image.fromarray((cloud * 255).astype('uint8')).filter(ImageFilter.MaxFilter(7))
 cloud = np.array(cm) > 0
+prot = np.zeros((H, W), bool); prot[:575, :330] = (a[:575, :330].sum(2) < 400)          # los pinos de la ladera no se tocan
+cloud &= ~prot
 # quita restos sueltos (trozos de nube de menos de 220 px)
 seen = np.zeros((H, W), bool)
 for y0 in range(H):
@@ -58,6 +60,18 @@ for y in range(0, 560):
     sky[y][cloud[y]] = skymap[y][cloud[y]]
 layer = np.zeros((H, W, 4), np.uint8)
 layer[:, :, :3] = clean; layer[:, :, 3] = cloud * 255
+# la nube pasa por detrás de los pinos: rellena el hueco con forma de árbol que dejan en la capa de nubes
+closed = np.array(Image.fromarray((cloud * 255).astype('uint8')).filter(ImageFilter.MaxFilter(31)).filter(ImageFilter.MinFilter(31))) > 0
+protd = np.array(Image.fromarray((prot * 255).astype('uint8')).filter(ImageFilter.MaxFilter(15))) > 0
+fill = protd & closed & ~cloud
+def boxsum(m, r):
+    c = np.pad(m, ((r + 1, r), (r + 1, r))).cumsum(0).cumsum(1)
+    return c[2 * r + 1:, 2 * r + 1:] - c[:-2 * r - 1, 2 * r + 1:] - c[2 * r + 1:, :-2 * r - 1] + c[:-2 * r - 1, :-2 * r - 1]
+cw = boxsum(cloud.astype(float), 14)
+for c in range(3):
+    mean = boxsum(clean[:, :, c] * cloud, 14) / np.maximum(cw, 1)
+    layer[:, :, c] = np.where(fill, mean, layer[:, :, c])
+layer[:, :, 3] = (cloud | fill) * 255
 # 3) locomotora: polígono en coords de la referencia
 poly = [(603,543),(644,543),(644,560),(639,560),(639,600),(662,602),(682,612),(692,620),(692,742),(684,750),(674,757),
         (580,757),(566,750),(557,742),(557,620),(566,612),(578,604),(606,600),(606,560),(603,560)]
@@ -77,6 +91,13 @@ def save(arr, name, mode, half=False):
     im.save(f"{out_dir}{name}")
 save(sky, "cielo.png", "RGB"); save(clean, "bg.png", "RGB", half=True)             # cielo a resolución completa; bg (fondo de la bio) a la mitad
 save(layer, "nubes.png", "RGBA")
+# primer plano: las copas de los pinos de la ladera izquierda van por delante de las nubes
+fg = np.zeros((H, W, 4), np.uint8)
+dark = (a.sum(2) < 400)
+fgm = np.zeros((H, W), bool); fgm[:575, :330] = dark[:575, :330]
+fgm[575:] = False
+fg[:, :, :3] = a; fg[:, :, 3] = fgm * 255
+save(fg, "primer-plano.png", "RGBA")
 # locomotora a resolución completa, sin el azul del cielo en el borde
 box = (550, 540, 700, 762)
 rgb = np.array(ref.crop(box)).astype(int); pm = np.array(mask.crop(box)) > 0
@@ -99,6 +120,20 @@ for _ in range(2):                                                              
             if alpha[y, x] and not (alpha[y - 1, x] and alpha[y + 1, x] and alpha[y, x - 1] and alpha[y, x + 1]) and rgb[y, x][2] - rgb[y, x][0] > 12:
                 nxt[y, x] = False
     alpha = nxt
+# silueta limpia: simétrica (la locomotora lo es), sin motas, con borde de un píxel oscuro
+ys_, xs_ = np.where(alpha); cxm = (xs_.min() + xs_.max()) / 2
+mir = np.zeros_like(alpha)
+for x in range(w):
+    xm = int(round(2 * cxm - x))
+    if 0 <= xm < w: mir[:, x] = alpha[:, xm]
+alpha = alpha & mir
+def morph(m, f): return np.array(Image.fromarray((m * 255).astype('uint8')).filter(f)) > 127
+alpha = morph(morph(alpha, ImageFilter.MinFilter(3)), ImageFilter.MaxFilter(3))               # abre: quita motas
+alpha = morph(morph(alpha, ImageFilter.MaxFilter(3)), ImageFilter.MinFilter(3))               # cierra: rellena mellas
+inner = morph(alpha, ImageFilter.MinFilter(3))
+ring = alpha & ~inner
+rgb2 = rgb.astype(float); rgb2[ring] = rgb2[ring] * .45 + np.array([18, 22, 40]) * .55         # contorno oscuro de pixel art
+rgb = rgb2.astype(int)
 spr = np.zeros((h, w, 4), np.uint8); spr[:, :, :3] = rgb; spr[:, :, 3] = alpha * 255
 Image.fromarray(spr).save(f"{out_dir}tren.png")
 print("tren", (w, h), "ancla (centro-base, unidades de mundo) =", ((624 - 550) / 2, (757 - 540) / 2))
