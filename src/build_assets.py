@@ -136,6 +136,8 @@ rgb2 = rgb.astype(float); rgb2[ring] = rgb2[ring] * .45 + np.array([18, 22, 40])
 rgb = rgb2.astype(int)
 spr = np.zeros((h, w, 4), np.uint8); spr[:, :, :3] = rgb; spr[:, :, 3] = alpha * 255
 Image.fromarray(spr).save(f"{out_dir}tren.png")
+import shutil                                                                      # la locomotora definitiva se regeneró con PixelLab (img2img sobre el recorte anterior)
+if os.path.exists(f"{here}/tren_pixellab.png"): shutil.copy(f"{here}/tren_pixellab.png", f"{out_dir}tren.png")
 print("tren", (w, h), "ancla (centro-base, unidades de mundo) =", ((624 - 550) / 2, (757 - 540) / 2))
 # humo: 8 cuadros de 32x32 (celdas de 2 px como los bloques de la referencia), paleta tomada del penacho original
 pal = {"luz": (236, 222, 208), "base": (214, 200, 196), "medio": (186, 184, 200), "sombra": (150, 160, 192), "hondo": (122, 134, 176)}
