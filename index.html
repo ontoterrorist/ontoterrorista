@@ -93,76 +93,46 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
 <script>
 (() => {
 'use strict';
-const WW = 768, WH = 512;                       // mundo = la referencia a media resolución
+const WW = 627, WH = 627;                       // mundo = la referencia a media resolución
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage'), sub = document.getElementById('sub');
 const gate = document.getElementById('gate');
 const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = n; });
-let bg, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
+let cielo, nubes, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 3.0, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
-const SPR = {ax: 30, ay: 68.5, w: 125, h: 77, lights: [[14, 50], [46, 50]]};
+const T_GO = 3.0, T_RISE = 5.4, T_ARRIVE = 15.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const SPR = {ax: 37, ay: 108.5, w: 75, h: 111, lamp: [36.5, 28.5], chimney: [37, 3]};
 const CAPTIONS = [[1.0, 'Hay una colina. Hay un mar.'], [4.2, 'Y algo que viene por el riel.'], [8.6, 'Ninguna estación lo esperaba.'], [12.6, 'Nadie anunció su llegada.'], [14.4, '']];
 
-// vía: eje de la línea (coords del mundo) y escala de perspectiva a lo largo de ella, medidos sobre la imagen
-const CL = [[60, 190], [100, 210], [150, 238], [200, 275], [250, 303], [300, 327], [350, 355], [400, 381], [450, 410], [500, 436], [550, 460], [600, 484], [700, 532], [800, 580], [2500, 1380]];
-const ST = [[60, .55], [100, .75], [150, 1], [200, 1.4], [350, 2.5], [450, 3.9], [600, 6.6], [768, 10.5], [1100, 20], [2500, 50]];
+// vía recta de frente: la locomotora asoma por la cresta y se acerca por el eje; la escala sale de la perspectiva de los rieles
+const CX = 312, CREST = 379, Y0 = 332, S0 = 46, S_MAX = 13;
 const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
-function interp(T, x) {
-  let i = 0; while (i < T.length - 2 && x > T[i + 1][0]) i++;
-  const a = T[i], b = T[i + 1]; return lerp(a[1], b[1], (x - a[0]) / (b[0] - a[0]));
+function trainAt(t) {
+  const r = smooth(T_GO, T_RISE, t), u = clamp((t - T_RISE) / (T_ARRIVE - T_RISE));
+  const s = 1 / (1 - (1 - 1 / S_MAX) * u);                          // distancia lineal → la escala crece cada vez más rápido
+  const bob = Math.sin(t * 11) * .12 * s + Math.sin(t * 5.3) * .1 * s * u;
+  return {x: CX + Math.sin(t * 3.1) * .08 * s * u, y: Y0 + S0 * s + (1 - r) * SPR.h + bob * .3, s, u, r, hid: r < 1};
 }
-const scaleAt = x => Math.max(.3, interp(ST, x));
-const CAR_M = 20, TRAIN_M = 110, CAR_H = 50;          // largo de coche y de tren (m), alto del coche en px del sprite
-
-// cabeza del tren: sigue el eje de la vía; al final se arranca hacia la cámara
-function trainAt(up) {
-  const cx = (ox + W / 2) / S, cy = (oy + H / 2) / S;
-  const xB = 122 + 600 * up, yB = interp(CL, xB), sB = scaleAt(xB);
-  const w = smooth(.68, 1, up);
-  const x = lerp(xB, cx + 5 * 22, w), y = lerp(yB, cy + 400, w), s = Math.exp(lerp(Math.log(sB), Math.log(22), w));
-  return {x, y, s, xB, dx: x - xB, dy: y - yB, rs: s / sB, a: smooth(122, 165, xB)};
-}
-
-// recorre el tren hacia atrás por la vía (metros → píxeles con la perspectiva de cada tramo)
-function walkBack(tr, fn) {
-  let m = 0;
-  for (let x = tr.xB; m < TRAIN_M && x > 30; x -= 1) {
-    const yc = interp(CL, x), sT = scaleAt(x), slope = interp(CL, x + 1) - yc;
-    fn(m, x + tr.dx, yc + tr.dy, sT, sT * tr.rs);
-    m += Math.sqrt(1 + slope * slope) / (1.2 * sT * sT);
-  }
-}
-let colTop = null, colBot = null;
-function colExtents() {
-  colTop = new Array(SPR.w).fill(12); colBot = new Array(SPR.w).fill(62);
-  try {
-    const c = document.createElement('canvas'); c.width = tren.width; c.height = tren.height;
-    const g = c.getContext('2d'); g.drawImage(tren, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
-    for (let x = 0; x < c.width; x++) {
-      let t = -1, b = -1;
-      for (let y = 0; y < c.height; y++) if (d[(y * c.width + x) * 4 + 3] > 128) { if (t < 0) t = y; b = y; }
-      if (t >= 0) { colTop[x] = t; colBot[x] = b; }
-    }
-  } catch (e) { /* sin lectura de píxeles: valores por omisión */ }
-}
-// el cuerpo se arma cuadro a cuadro: una rebanada del flanco por cada paso de la vía, con su escala y su altura
 function drawTrain(tr) {
-  const body = [];
-  walkBack(tr, (m, px, py, sT, sj) => body.push([m, px, py, sj]));
-  for (let i = body.length - 1; i >= 0; i--) {                       // de lo lejano a lo cercano
-    const [m, px, py, sj] = body[i], a = smooth(122, 165, px - tr.dx);
-    if (a <= 0 || px < -4) continue;
-    const col = 52 + Math.min(61, ((m % CAR_M) / CAR_M * 62) | 0), t = colTop[col], b = colBot[col];
-    const h = CAR_H * sj;
-    ctx.globalAlpha = a;
-    ctx.drawImage(tren, col, t, 1, b - t + 1, Math.round(px), Math.round(py - h), 2, Math.round(h));
+  ctx.save();
+  if (tr.hid) { ctx.beginPath(); ctx.rect(0, 0, WW, CREST); ctx.clip(); }   // asoma por detrás de la cresta
+  ctx.drawImage(tren, Math.round(tr.x - SPR.ax * tr.s), Math.round(tr.y - SPR.ay * tr.s), Math.round(SPR.w * tr.s), Math.round(SPR.h * tr.s));
+  ctx.restore();
+}
+// nubes: capa propia que deriva despacio; copias espejadas a los lados para que no haya corte
+const CLOUD_PX_S = 3;
+function drawSky(ms) {
+  ctx.drawImage(cielo, 0, 0);
+  const dx = ms / 1000 * CLOUD_PX_S, base = Math.floor(-dx / WW);
+  for (const n of [base, base + 1]) {
+    const x = n * WW + dx;
+    ctx.save();
+    if (((n % 2) + 2) % 2 === 1) { ctx.translate(x + WW, 0); ctx.scale(-1, 1); ctx.drawImage(nubes, 0, 0); }
+    else ctx.drawImage(nubes, x, 0);
+    ctx.restore();
   }
-  ctx.globalAlpha = tr.a;                                             // cabina
-  ctx.drawImage(tren, 0, 0, 52, SPR.h, Math.round(tr.x - SPR.ax * tr.s), Math.round(tr.y - SPR.ay * tr.s), Math.round(52 * tr.s), Math.round(SPR.h * tr.s));
-  ctx.globalAlpha = 1;
 }
 
 // ---------- sonido procedural ----------
@@ -210,30 +180,20 @@ function fit() {
 }
 addEventListener('resize', fit); fit();
 
-function camera(train) {
-  const vw = W / S, vh = H / S;
-  const fx = train ? train.x : WW * .35;
-  ox = clamp(fx * S - W * .42, 0, WW * S - W); oy = (WH * S - H) * .8;
+function camera(u) {
+  ox = clamp(CX * S - W / 2, 0, WW * S - W); oy = (WH * S - H) * lerp(.62, 1, smooth(0, .8, u));
 }
 
 // ---------- humo ----------
 function spawnSmoke(tr, dt) {
-  if (tr.a < .3) return;
-  const rate = 26 * dt * (.6 + tr.s / 8);
-  parts.rate = (parts.rate || 0) + rate;
+  if (tr.r < .2) return;
+  parts.rate = (parts.rate || 0) + 14 * dt;
   while (parts.rate >= 1) {
     parts.rate--;
-    const k = Math.random() * 3 | 0; let x = tr.x, y = tr.y - (SPR.ay - 7) * tr.s, sz = tr.s;
-    if (k) {                                                         // techo de los coches
-      const target = k * 9; let hit = null;
-      walkBack(tr, (m, px, py, sT, sj) => { if (!hit && m >= target) hit = [px, py - CAR_H * sj, sj]; });
-      if (hit) [x, y, sz] = hit;
-    }
-    parts.push({x, y, vx: -14 - Math.random() * 12, vy: -16 - Math.random() * 12,
-      age: 0, life: 2.4 + Math.random() * 1.2, sz: sz * (.34 + Math.random() * .22), dust: false});
+    const z = Math.min(tr.s, 5);
+    parts.push({x: tr.x + (SPR.chimney[0] - SPR.ax) * tr.s + (Math.random() - .5) * 3 * z, y: tr.y + (SPR.chimney[1] - SPR.ay) * tr.s,
+      vx: 6 + Math.random() * 10, vy: -16 - Math.random() * 12, age: 0, life: 2.6 + Math.random() * 1.2, sz: z * (1.0 + Math.random() * .35), dust: false});
   }
-  if (Math.random() < dt * 5) parts.push({x: tr.x + (Math.random() * 24 - 12) * tr.s * .5, y: tr.y - 1, vx: -8 - Math.random() * 6, vy: -4 - Math.random() * 5,
-    age: 0, life: 1.4, sz: tr.s * .2, dust: true});
 }
 function drawSmoke(dt) {
   for (let i = parts.length - 1; i >= 0; i--) {
@@ -303,29 +263,25 @@ function drawShards(t) {
 
 // ---------- escena ----------
 function glow(tr, u) {
-  const k = smooth(.55, 1, u); if (k <= 0) return;
+  const k = smooth(.15, 1, u); if (k <= 0 || tr.hid) return;
+  const x = tr.x + (SPR.lamp[0] - SPR.ax) * tr.s, y = tr.y + (SPR.lamp[1] - SPR.ay) * tr.s;
   ctx.globalCompositeOperation = 'lighter';
-  for (const [lx, ly] of SPR.lights) {
-    const x = tr.x + (lx - SPR.ax) * tr.s, y = tr.y + (ly - SPR.ay) * tr.s;
-    [[1.7, .10], [1.1, .16], [.6, .28], [.28, .55]].forEach(([r, a]) => {
-      ctx.fillStyle = `rgba(255,224,160,${a * k})`; ctx.beginPath(); ctx.arc(Math.round(x), Math.round(y), r * tr.s * 3.2, 0, 7); ctx.fill();
-    });
-  }
+  [[1.7, .10], [1.1, .16], [.6, .28], [.28, .55]].forEach(([r, a]) => {
+    ctx.fillStyle = `rgba(255,224,160,${a * k})`; ctx.beginPath(); ctx.arc(Math.round(x), Math.round(y), r * tr.s * 2.4, 0, 7); ctx.fill();
+  });
   ctx.globalCompositeOperation = 'source-over';
 }
 function scene(t, dt) {
-  const u = clamp((t - T_GO) / (T_ARRIVE - T_GO)), up = Math.pow(u, 1.5);
-  const tr = trainAt(t >= T_GO ? up : 0);
-  camera(tr);
+  const tr = trainAt(t), up = tr.u;
+  camera(tr.u);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   ctx.imageSmoothingEnabled = false;
   const sx = Math.round((Math.random() - .5) * shake), sy = Math.round((Math.random() - .5) * shake);
   ctx.setTransform(S, 0, 0, S, -ox + sx, -oy + sy);
-  ctx.drawImage(bg, 0, 0);
-  // brillo del mar
-  ctx.fillStyle = 'rgba(255,255,255,.55)';
-  for (let i = 0; i < 18; i++) { const q = (t * .7 + i * 7.31) % 1; if (q < .5) ctx.fillRect(520 + ((i * 97) % 240) | 0, 262 + ((i * 53) % 110) | 0, 3, 1); }
-  if (t >= T_GO) spawnSmoke(tr, dt);
+  drawSky(performance.now());
+  ctx.fillStyle = 'rgba(255,255,255,.5)';                                   // brillo del mar
+  for (let i = 0; i < 16; i++) { const q = (t * .7 + i * 7.31) % 1; if (q < .5) ctx.fillRect(500 + ((i * 97) % 110) | 0, 385 + ((i * 53) % 50) | 0, 3, 1); }
+  spawnSmoke(tr, dt);
   drawSmoke(dt);
   drawTrain(tr);
   glow(tr, up);
@@ -381,8 +337,9 @@ function start() {
   document.documentElement.scrollTop = 0; window.scrollTo(0, 0);
   phase = 'play'; t0 = performance.now(); last = t0; requestAnimationFrame(frame);
 }
-function replay() { stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; drawIdle(); window.scrollTo(0, 0); }
-function drawIdle() { camera(null); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; ctx.drawImage(bg, 0, 0); ctx.setTransform(1, 0, 0, 1, 0, 0); }
+function replay() { stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
+function drawIdle() { camera(0); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; drawSky(performance.now()); ctx.setTransform(1, 0, 0, 1, 0, 0); }
+function idleLoop() { if (phase !== 'gate') return; drawIdle(); requestAnimationFrame(idleLoop); }
 
 gate.addEventListener('click', start);
 gate.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') start(); });
@@ -392,10 +349,10 @@ document.getElementById('mute').addEventListener('click', e => {
 });
 document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); });
 
-Promise.all([img('bg.png'), img('tren.png'), img('humo.png')]).then(([a, b, c]) => {
-  bg = a; tren = b; humo = c; colExtents(); drawIdle();
+Promise.all([img('cielo.png'), img('nubes.png'), img('tren.png'), img('humo.png')]).then(([a, n, b, c]) => {
+  cielo = a; nubes = n; tren = b; humo = c; idleLoop();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { phase = 'off'; stage.classList.add('done'); }
-  addEventListener('resize', () => { if (phase === 'gate') drawIdle(); });
+  
   window.__ono = {get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};
 });
 })();
