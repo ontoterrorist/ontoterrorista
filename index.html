@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ontoterrorista</title>
-<meta name="description" content="Un tren llega por la colina, la pantalla se quiebra y aparece la biografía académica de ontoterrorista.">
+<meta name="description" content="Un tren llega por la colina, la pantalla se quiebra y aparece una mini descripción de los intereses filosóficos de ontoterrorista.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@ html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--bo
 body{min-height:100vh}
 
 /* ---------- biografía (debajo del escenario) ---------- */
-#bio{position:relative;min-height:100vh;padding:56px 16px 80px;
+#bio{position:relative;min-height:100vh;display:grid;align-items:center;padding:56px 16px 80px;
   background:linear-gradient(rgba(9,14,36,.9),rgba(9,14,36,.94)),url(bg.png) center/cover fixed;
   image-rendering:pixelated}
 #bio .wrap{max-width:860px;margin:0 auto}
@@ -74,39 +74,11 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
 
 <main id="bio">
   <div class="wrap">
-    <p class="kicker">▌ BIOGRAFÍA ACADÉMICA</p>
+    <p class="kicker">▌ INTERESES FILOSÓFICOS</p>
     <h1>ontoterrorista</h1>
-    <p class="lead">Filósofo y profesor de filosofía y argumentación. Licenciado en Filosofía con Distinción Máxima por la Universidad de Chile; cursa el Magíster en Filosofía de las Ciencias en la USACH, con tesis en curso sobre ciencia cognitiva, explicación mecanicista y métodos formales.</p>
+    <p class="lead">Me interesa cómo se explica la mente: la filosofía de la ciencia cognitiva, la explicación mecanicista, la fenomenología y la mente extendida, siempre con las herramientas de la lógica y la filosofía analítica.</p>
 
-    <section>
-      <h2>Formación</h2>
-      <div class="row"><div class="when">2023 – tesis</div><div class="what">Magíster en Filosofía de las Ciencias<small>Universidad de Santiago de Chile · filosofía de la ciencia cognitiva, explicación mecanicista, métodos formales</small></div></div>
-      <div class="row"><div class="when">hasta 2022</div><div class="what">Licenciatura en Filosofía, Distinción Máxima<small>Universidad de Chile · filosofía analítica, lógica, filosofía de la mente</small></div></div>
-      <div class="row"><div class="when">2024</div><div class="what">Monitor de Ajedrez<small>Federación de Ajedrez de Chile</small></div></div>
-    </section>
-
-    <section>
-      <h2>Docencia</h2>
-      <div class="row"><div class="when">2025 – hoy</div><div class="what">Filosofía y Debate y Argumentación<small>Colegio Andino Montessori · enseñanza media, aprendizaje activo basado en evidencia</small></div></div>
-      <div class="row"><div class="when">mar – jun 2024</div><div class="what">Profesor ayudante, «Métodos Formales»<small>Magíster en Filosofía de la Ciencia, USACH</small></div></div>
-      <div class="row"><div class="when">2023 – 2024</div><div class="what">Filosofía y Orientación<small>Colegio Gerónimo de Alderete</small></div></div>
-      <div class="row"><div class="when">abr – jun 2023</div><div class="what">Filosofía<small>Centro Educacional Niño Dios de Malloco</small></div></div>
-      <div class="row"><div class="when">2022 – 2023</div><div class="what">Filosofía, programa completo para todos los niveles de media<small>Escuela Premilitar Capitán Ignacio Carrera Pinto</small></div></div>
-    </section>
-
-    <section>
-      <h2>Proyectos</h2>
-      <div class="row"><div class="when">2023 – 2025</div><div class="what">Organizador general del Coloquio de Estudiantes de Filosofía Analítica<small>tres ediciones consecutivas: VII (PUC), VIII y IX (USACH)</small></div></div>
-      <div class="row"><div class="when">—</div><div class="what">Equipo editorial, Revista Fulcro n.º 2<small>Postgrado y Postítulo, Universidad de Chile</small></div></div>
-    </section>
-
-    <section>
-      <h2>Intereses filosóficos</h2>
-      <div class="tags"><span>FILOSOFÍA DE LA CIENCIA COGNITIVA</span><span>EXPLICACIÓN MECANICISTA</span><span>FILOSOFÍA DE LA MENTE</span><span>FENOMENOLOGÍA</span><span>MENTE EXTENDIDA</span><span>LÓGICA Y MÉTODOS FORMALES</span><span>FILOSOFÍA ANALÍTICA</span></div>
-      <div class="tags"><span>ACHIF</span><span>SOCHIFIC</span><span>ACHEFA</span><span>SCIENTIA</span></div>
-    </section>
-
-    <footer><button class="again" id="again">▶ VER LLEGAR EL TREN</button><span>pixel art · Pixelorama · 2026</span></footer>
+    <footer><button class="again" id="again">▶ VER LLEGAR EL TREN</button></footer>
   </div>
 </main>
 
