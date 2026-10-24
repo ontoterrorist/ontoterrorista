@@ -127,7 +127,7 @@ const SPR = {ax: 36.5, ay: 108.5, w: 74, h: 110, lamp: [36.5, 27], chimney: [36.
 const CAPTIONS = [];                                              // sin subtítulos
 
 // vía recta de frente: la locomotora asoma por la cresta y se acerca por el eje; la escala sale de la perspectiva de los rieles
-const CX = 312, CREST = 379, Y0 = 332, S0 = 46, S_MAX = 13;
+const CX = 311, CREST = 378, Y0 = 322, S0 = 56, S_MAX = 13;
 const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 function trainAt(t) {
@@ -147,7 +147,7 @@ function drawTrain(tr) {
 // nubes: capa propia que deriva despacio; copias espejadas a los lados para que no haya corte
 const CLOUD_PX_S = 3;
 function drawSky(ms) {
-  sm(S / 2 < 1); ctx.drawImage(cielo, 0, 0, WW, WH);
+  sm(S * WW / cielo.width < 1); ctx.drawImage(cielo, 0, 0, WW, WH);
   const dx = ms / 1000 * CLOUD_PX_S, base = Math.floor(-dx / WW);
   for (const n of [base, base + 1]) {
     const x = n * WW + dx;
