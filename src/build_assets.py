@@ -67,10 +67,14 @@ fill = protd & closed & ~cloud
 def boxsum(m, r):
     c = np.pad(m, ((r + 1, r), (r + 1, r))).cumsum(0).cumsum(1)
     return c[2 * r + 1:, 2 * r + 1:] - c[:-2 * r - 1, 2 * r + 1:] - c[2 * r + 1:, :-2 * r - 1] + c[:-2 * r - 1, :-2 * r - 1]
-cw = boxsum(cloud.astype(float), 14)
-for c in range(3):
-    mean = boxsum(clean[:, :, c] * cloud, 14) / np.maximum(cw, 1)
-    layer[:, :, c] = np.where(fill, mean, layer[:, :, c])
+src = cloud & ~protd                                          # color de nube solo de píxeles lejos de los pinos (sin el halo de su contorno)
+for r in (14, 40, 90):                                        # radio creciente hasta encontrar nube vecina
+    cw = boxsum(src.astype(float), r)
+    for c in range(3):
+        mean = boxsum(clean[:, :, c] * src, r) / np.maximum(cw, 1)
+        todo = protd & (cloud | fill) & (cw > 0)
+        layer[:, :, c] = np.where(todo & ~done, mean, layer[:, :, c]) if r > 14 else np.where(todo, mean, layer[:, :, c])
+    done = protd & (cloud | fill) & (cw > 0) if r == 14 else (done | (protd & (cloud | fill) & (cw > 0)))
 layer[:, :, 3] = (cloud | fill) * 255
 # 3) locomotora: polígono en coords de la referencia
 poly = [(603,543),(644,543),(644,560),(639,560),(639,600),(662,602),(682,612),(692,620),(692,742),(684,750),(674,757),
