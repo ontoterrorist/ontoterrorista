@@ -122,7 +122,7 @@ const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i)
 let cielo, nubes, primer, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 0, T_RISE = 0, T_ARRIVE = 9.5, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const T_GO = 0, T_RISE = 0, T_ARRIVE = 7.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
 const SPR = {ax: 36.5, ay: 108.5, w: 74, h: 110, lamp: [36.5, 27], chimney: [36.5, 4]};
 const CAPTIONS = [];                                              // sin subtítulos
 
@@ -323,9 +323,9 @@ function scene(t, dt) {
     rumbleG.gain.value = lerp(.04, 1.7, Math.pow(up, .55)); rumbleF.frequency.value = 90 + 520 * up;
     beat += dt * (2.5 + 17 * up); if (beat >= 1) { beat--; burst(900 + up * 700, 2.5, .05, .05 + 1.1 * up * up); burst(110, 1, .09, .08 + 1.1 * up, 'lowpass'); burst(260, .8, .16, .05 + .9 * up, 'lowpass'); }
   }
-  if (t > 4.6 && !hornA) { hornA = true; horn(.8); }
-  if (t > 6.9 && !hornB) { hornB = true; horn(1.5); }
-  if (t > 8.5 && !hornC) { hornC = true; horn(2.2); }
+  if (t > 3.2 && !hornA) { hornA = true; horn(.8); }
+  if (t > 4.9 && !hornB) { hornB = true; horn(1.5); }
+  if (t > 6.2 && !hornC) { hornC = true; horn(2.2); }
 }
 
 function caption(t) {
