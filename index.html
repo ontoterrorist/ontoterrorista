@@ -113,11 +113,6 @@ nav.cats a.on b::before{color:var(--orange)}
   font:clamp(10px,1.7vw,16px)/1.9 var(--px);color:var(--cream);text-shadow:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000;
   opacity:0;transition:opacity .5s}
 #sub.on{opacity:1}
-#gate{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:rgba(3,6,20,.55);cursor:pointer;
-  padding:20px}
-#gate h1{font-size:clamp(20px,5.4vw,56px);margin:0 0 26px}
-#gate p{font:clamp(10px,1.6vw,14px)/1.8 var(--px);color:var(--cream);margin:0;animation:blink 1.1s steps(2) infinite}
-@keyframes blink{50%{opacity:.15}}
 #skip,#mute{position:absolute;top:14px;font:10px/1 var(--px);color:var(--cream);background:rgba(0,0,0,.55);border:2px solid var(--cream);
   padding:10px 12px;cursor:pointer;opacity:.0;pointer-events:none}
 #skip{right:14px}#mute{left:14px}
@@ -184,7 +179,6 @@ nav.cats a.on b::before{color:var(--orange)}
   <div id="sub" aria-live="polite"></div>
   <button id="mute" aria-label="Silenciar">SONIDO: SÍ</button>
   <button id="skip">SALTAR ▶▶</button>
-  <div id="gate" role="button" tabindex="0"><div><p>▶ PULSA PARA ABORDAR</p></div></div>
 </div>
 
 <script>
@@ -193,7 +187,6 @@ nav.cats a.on b::before{color:var(--orange)}
 const WW = 627, WH = 627;                       // mundo = la referencia a media resolución
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const stage = document.getElementById('stage'), sub = document.getElementById('sub');
-const gate = document.getElementById('gate');
 const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = n; });
 let cielo, nubes, primer, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
@@ -252,14 +245,14 @@ function audioInit() {
   } catch (e) { AC = null; }
 }
 function burst(freq, q, dur, vol, type = 'bandpass') {
-  if (!AC) return;
+  if (!AC || AC.state !== 'running') return;                        // sin gesto previo el navegador lo deja suspendido: mejor mudo que un golpe de ruido al reanudar
   const s = AC.createBufferSource(); s.buffer = noise; s.playbackRate.value = .6 + Math.random() * .8;
   const f = AC.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
   const g = AC.createGain(); g.gain.setValueAtTime(vol, AC.currentTime); g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + dur);
   s.connect(f).connect(g).connect(master); s.start(0, Math.random()); s.stop(AC.currentTime + dur + .05);
 }
 function tone(freq, dur, vol, type = 'sawtooth', cut = 1400) {
-  if (!AC) return;
+  if (!AC || AC.state !== 'running') return;                        // sin gesto previo el navegador lo deja suspendido: mejor mudo que un golpe de ruido al reanudar
   const o = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain(), t = AC.currentTime;
   o.type = type; o.frequency.value = freq; f.type = 'lowpass'; f.frequency.value = cut;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .06); g.gain.setValueAtTime(vol, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur);
@@ -459,17 +452,17 @@ function finish() { phase = 'off'; stage.classList.add('done'); revealBio(); if 
 
 function start() {
   audioInit(); if (AC && AC.state === 'suspended') AC.resume();
-  gate.style.display = 'none'; stage.classList.add('playing'); stage.style.background = '#000';
+  stage.classList.add('playing'); stage.style.background = '#000';
   parts = []; shards = []; beat = 0; hornA = hornB = hornC = crackFired = false; shake = 0; sub.textContent = ''; sub.classList.remove('on');
   document.documentElement.scrollTop = 0; window.scrollTo(0, 0);
   phase = 'play'; t0 = performance.now(); last = t0; requestAnimationFrame(frame);
 }
-function replay() { resetBio(); stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
+function replay() { resetBio(); stage.classList.remove('done'); stage.classList.remove('playing'); stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
 function drawIdle() { camera(0); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; drawSky(performance.now()); drawTrain(trainAt(0)); ctx.setTransform(1, 0, 0, 1, 0, 0); }
 function idleLoop() { if (phase !== 'gate') return; drawIdle(); requestAnimationFrame(idleLoop); }
 
-gate.addEventListener('click', start);
-gate.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') start(); });
+// la cinemática arranca sola; el audio se activa en cuanto el navegador lo permite (primer gesto de la persona)
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, () => { if (AC && AC.state === 'suspended') AC.resume(); }, {passive: true}));
 document.getElementById('skip').addEventListener('click', e => { e.stopPropagation(); finish(); });
 document.getElementById('mute').addEventListener('click', e => {
   muted = !muted; e.target.textContent = 'SONIDO: ' + (muted ? 'NO' : 'SÍ'); if (master) master.gain.value = muted ? 0 : 1;
@@ -477,9 +470,8 @@ document.getElementById('mute').addEventListener('click', e => {
 document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); start(); });   // el clic ya desbloquea el audio
 
 Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('tren.png'), img('humo.png')]).then(([a, n, pp, b, c]) => {
-  cielo = a; nubes = n; primer = pp; tren = b; humo = c; idleLoop();
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { phase = 'off'; stage.classList.add('done'); }
-  
+  cielo = a; nubes = n; primer = pp; tren = b; humo = c;
+  if (!motionOK) { phase = 'off'; stage.classList.add('done'); } else start();
   window.__ono = {trainAt, get parts() { return parts; }, start, finish, get phase() { return phase; }, jump(sec) { t0 = performance.now() - sec * 1000; }};
 });
 })();
