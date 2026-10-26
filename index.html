@@ -13,6 +13,7 @@
   --night:#0d1430; --panel:#16224a; --panel2:#1d2d5e; --sky:#6fa6e8; --cream:#f3e9d2;
   --orange:#e8743b; --leaf:#8fb85a; --ink:#e9e4d4; --mute:#9db0d8;
   --px:'Press Start 2P',ui-monospace,monospace; --body:'Pixelify Sans',ui-monospace,monospace;
+  --paso:80ms; --entrada:600ms; --riel:#2c3f7a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body)}
@@ -69,6 +70,39 @@ summary:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
 details p{margin:10px 0 2px;font-size:18px;line-height:1.5;max-width:60ch;color:var(--ink)}
 #animaciones .again{margin:0 0 12px}
 footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute);font-size:16px;margin-top:36px}
+/* ---------- pixel ferroviario nocturno: movimiento a saltos de píxel ---------- */
+nav.cats a b::before{content:'■ ';color:var(--riel)}                         /* señal: apagada → naranja en la sección activa */
+nav.cats a.on b::before{color:var(--orange)}
+.via{position:relative;height:8px;overflow:hidden;margin:18px 0 6px}
+.via i{position:absolute;top:0;left:0;height:100%;width:calc(100% + 12px);
+  background:linear-gradient(var(--riel),var(--riel)) 0 3px/100% 2px no-repeat,repeating-linear-gradient(90deg,transparent 0 8px,var(--riel) 8px 12px)}
+@media (prefers-reduced-motion:no-preference){
+  @keyframes sube{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes enciende{0%{text-shadow:none}50%{text-shadow:4px 4px 0 var(--orange)}100%{text-shadow:4px 4px 0 var(--orange),8px 8px 0 #7a2f12}}
+  @keyframes fundido{from{opacity:0}to{opacity:1}}
+  @keyframes parpadeo{50%{opacity:.55}}
+  @keyframes via{to{transform:translateX(-12px)}}
+  /* entrada de la bio: cada bloque sube 8px en 3 pasos, uno tras otro */
+  html.anim #bio .wrap>.kicker,html.anim #bio .wrap>h1,html.anim #bio .wrap>.lead,html.anim #bio .wrap>nav.cats,
+  html.anim #bio section,html.anim #bio nav.repos{opacity:0}
+  #bio .wrap>:nth-child(1){--i:0}#bio .wrap>:nth-child(2){--i:1}#bio .wrap>:nth-child(3){--i:2}#bio .wrap>:nth-child(4){--i:3}
+  html.anim #bio.in .wrap>.kicker,html.anim #bio.in .wrap>.lead,html.anim #bio.in .wrap>nav.cats{
+    animation:sube var(--entrada) steps(3) both;animation-delay:calc(var(--i)*var(--paso))}
+  html.anim #bio.in .wrap>h1{
+    animation:sube var(--entrada) steps(3) both,enciende 160ms steps(1) both;
+    animation-delay:calc(var(--i)*var(--paso)),calc(var(--i)*var(--paso) + var(--entrada))}
+  /* revelado al bajar: una sola vez, lo dispara IntersectionObserver */
+  html.anim #bio section.vis,html.anim #bio nav.repos.vis{animation:sube var(--entrada) steps(3) both}
+  /* tarjetas: un paso a la izquierda y borde naranja */
+  nav.cats a,nav.repos li{transition:transform var(--paso) steps(1,start),box-shadow var(--paso) steps(1,start)}
+  nav.cats a:hover,nav.cats a:focus-visible,nav.repos li:hover,nav.repos li:focus-within{transform:translateX(-2px)}
+  nav.cats a:active{transform:translate(3px,3px)}
+  nav.repos li:hover,nav.repos li:focus-within{box-shadow:inset 0 0 0 2px var(--orange)}
+  details[open] p{animation:fundido 160ms steps(4) both}
+  .again:focus-visible{animation:parpadeo 1.1s steps(2) infinite}
+  .via i{animation:via 6s linear infinite paused}
+  .via.run i{animation-play-state:running}
+}
 @media (max-width:560px){.row{grid-template-columns:1fr}.when{font-size:16px}}
 
 /* ---------- escenario de la cinemática ---------- */
@@ -125,6 +159,7 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
       <h2>Animaciones</h2>
       <p class="empty">La primera es la llegada del tren, de 3 segundos.</p>
       <button class="again" id="again">▶ VER LLEGAR EL TREN</button>
+      <div class="via" aria-hidden="true"><i></i></div>
     </section>
 
     <nav class="repos" aria-label="Repositorios en GitHub">
@@ -389,7 +424,7 @@ function frame(now) {
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(snap, 0, 0);
     const prog = clamp(t / T_CRACK); drawCracks(prog);
     if (t < .12) { ctx.fillStyle = `rgba(255,255,255,${.8 * (1 - t / .12)})`; ctx.fillRect(0, 0, W, H); }
-    if (t >= T_CRACK) { phase = 'fall'; t0 = now; stage.style.background = 'transparent'; document.getElementById('bio').scrollIntoView(); }
+    if (t >= T_CRACK) { phase = 'fall'; t0 = now; stage.style.background = 'transparent'; bio.scrollIntoView(); revealBio(); }
   } else if (phase === 'fall') {
     stage.style.background = 'transparent';
     if (drawShards(t) === 0 || t > 4) { finish(); return; }
@@ -397,7 +432,30 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-function finish() { phase = 'off'; stage.classList.add('done'); if (AC && rumbleG) rumbleG.gain.value = 0; }
+// ---------- animaciones de la bio (solo si el sistema no pide movimiento reducido) ----------
+const bio = document.getElementById('bio'), motionOK = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (motionOK) document.documentElement.classList.add('anim');
+let reveal;
+function revealBio() {                                              // entrada escalonada; el resto se revela al bajar
+  if (!motionOK || bio.classList.contains('in')) return;
+  bio.classList.add('in');
+  reveal = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); reveal.unobserve(e.target); } }), {threshold: .15});
+  bio.querySelectorAll('section, nav.repos').forEach(el => reveal.observe(el));
+}
+function resetBio() {
+  bio.classList.remove('in'); if (reveal) reveal.disconnect();
+  bio.querySelectorAll('.vis').forEach(el => el.classList.remove('vis'));
+}
+// señal de la categoría activa y vía que solo corre mientras se ve
+const catLinks = [...document.querySelectorAll('nav.cats a')];
+const activo = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) catLinks.forEach(a => {
+  const on = a.hash === '#' + e.target.id; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
+}); }), {rootMargin: '-20% 0px -60% 0px'});
+['blogs', 'faq', 'animaciones'].forEach(id => activo.observe(document.getElementById(id)));
+const via = document.querySelector('.via');
+new IntersectionObserver(es => es.forEach(e => via.classList.toggle('run', e.isIntersecting))).observe(via);
+
+function finish() { phase = 'off'; stage.classList.add('done'); revealBio(); if (AC && rumbleG) rumbleG.gain.value = 0; }
 
 function start() {
   audioInit(); if (AC && AC.state === 'suspended') AC.resume();
@@ -406,7 +464,7 @@ function start() {
   document.documentElement.scrollTop = 0; window.scrollTo(0, 0);
   phase = 'play'; t0 = performance.now(); last = t0; requestAnimationFrame(frame);
 }
-function replay() { stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
+function replay() { resetBio(); stage.classList.remove('done'); stage.classList.remove('playing'); gate.style.display = 'grid'; stage.style.background = '#000'; phase = 'gate'; idleLoop(); window.scrollTo(0, 0); }
 function drawIdle() { camera(0); ctx.setTransform(S, 0, 0, S, -ox, -oy); ctx.imageSmoothingEnabled = false; drawSky(performance.now()); drawTrain(trainAt(0)); ctx.setTransform(1, 0, 0, 1, 0, 0); }
 function idleLoop() { if (phase !== 'gate') return; drawIdle(); requestAnimationFrame(idleLoop); }
 
@@ -416,7 +474,7 @@ document.getElementById('skip').addEventListener('click', e => { e.stopPropagati
 document.getElementById('mute').addEventListener('click', e => {
   muted = !muted; e.target.textContent = 'SONIDO: ' + (muted ? 'NO' : 'SÍ'); if (master) master.gain.value = muted ? 0 : 1;
 });
-document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); });
+document.getElementById('again').addEventListener('click', () => { window.scrollTo(0, 0); replay(); start(); });   // el clic ya desbloquea el audio
 
 Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('tren.png'), img('humo.png')]).then(([a, n, pp, b, c]) => {
   cielo = a; nubes = n; primer = pp; tren = b; humo = c; idleLoop();
