@@ -53,6 +53,21 @@ nav.repos ul{list-style:none;margin:22px 0 0;padding:0;display:grid;grid-templat
 nav.repos li{background:var(--panel);box-shadow:inset 0 0 0 2px #2c3f7a;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
 nav.repos li a{color:var(--cream);font:600 18px/1.3 var(--body);text-decoration:none}nav.repos li a:hover{color:var(--leaf);text-decoration:underline}
 nav.repos li span{color:var(--mute);font-size:15px}
+nav.cats{margin:0 0 44px}
+nav.cats ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+nav.cats a{display:flex;flex-direction:column;gap:8px;height:100%;padding:14px 16px;text-decoration:none;background:var(--panel);
+  box-shadow:inset 0 0 0 2px #2c3f7a,4px 4px 0 #08102a;color:var(--cream)}
+nav.cats a b{font:11px/1.4 var(--px);letter-spacing:.04em}
+nav.cats a span{color:var(--mute);font-size:16px;line-height:1.35}
+nav.cats a:hover,nav.cats a:focus-visible{box-shadow:inset 0 0 0 2px var(--orange),4px 4px 0 #08102a;outline:0}
+nav.cats a:active{transform:translate(3px,3px);box-shadow:inset 0 0 0 2px var(--orange),1px 1px 0 #08102a}
+.empty{margin:0 0 8px;color:var(--mute);font-size:18px;line-height:1.5;max-width:56ch}
+details{border-top:2px dashed #2c3f7a;padding:12px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font:600 18px/1.4 var(--body);color:var(--cream)}
+summary:focus-visible{outline:2px solid var(--orange);outline-offset:4px}
+details p{margin:10px 0 2px;font-size:18px;line-height:1.5;max-width:60ch;color:var(--ink)}
+#animaciones .again{margin:0 0 12px}
 footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute);font-size:16px;margin-top:36px}
 @media (max-width:560px){.row{grid-template-columns:1fr}.when{font-size:16px}}
 
@@ -85,6 +100,33 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
     <h1>ontoterrorista</h1>
     <p class="lead">Me interesa cómo se explica la mente: la filosofía de la ciencia cognitiva, la explicación mecanicista, la fenomenología y la mente extendida.</p>
 
+    <nav class="cats" aria-label="Categorías">
+      <ul>
+        <li><a href="#blogs"><b>BLOGS</b><span>notas sobre filosofía de la mente</span></a></li>
+        <li><a href="#faq"><b>FAQ</b><span>preguntas frecuentes sobre la página</span></a></li>
+        <li><a href="#animaciones"><b>ANIMACIONES</b><span>pixel art y movimiento</span></a></li>
+      </ul>
+    </nav>
+
+    <section id="blogs">
+      <h2>Blogs</h2>
+      <p class="empty">Todavía no hay entradas. Las notas sobre filosofía de la ciencia cognitiva y mente extendida van a aparecer aquí.</p>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+      <details><summary>¿Qué es esta página?</summary><p>Una página experimental en pixel art: un tren llega por la colina, la pantalla se quiebra y aparece una descripción de mis intereses filosóficos.</p></details>
+      <details><summary>¿De qué temas trata?</summary><p>De cómo se explica la mente: filosofía de la ciencia cognitiva, explicación mecanicista, fenomenología y mente extendida.</p></details>
+      <details><summary>¿Puedo saltar la animación del tren?</summary><p>Sí, con el botón SALTAR. Si tu sistema pide movimiento reducido, la animación no se reproduce.</p></details>
+      <details><summary>¿Dónde está el código?</summary><p>En el repositorio ontoterrorist/ontoterrorista de GitHub. No usa dependencias: canvas para la imagen y WebAudio para el sonido.</p></details>
+    </section>
+
+    <section id="animaciones">
+      <h2>Animaciones</h2>
+      <p class="empty">La primera es la llegada del tren, de 3 segundos.</p>
+      <button class="again" id="again">▶ VER LLEGAR EL TREN</button>
+    </section>
+
     <nav class="repos" aria-label="Repositorios en GitHub">
       <a class="gh" href="https://github.com/ontoterrorist" target="_blank" rel="noopener">▶ GITHUB / ONTOTERRORIST</a>
       <ul>
@@ -99,7 +141,6 @@ footer{display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--mute)
         <li><a href="https://github.com/ontoterrorist/ontoterrorista" target="_blank" rel="noopener">ontoterrorista</a><span>esta página</span></li>
       </ul>
     </nav>
-    <footer><button class="again" id="again">▶ VER LLEGAR EL TREN</button></footer>
   </div>
 </main>
 
@@ -122,7 +163,7 @@ const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i)
 let cielo, nubes, primer, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 0, T_RISE = 0, T_ARRIVE = 14.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const T_GO = 0, T_RISE = 0, T_ARRIVE = 3.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
 const SPR = {ax: 36.5, ay: 108.5, w: 74, h: 110, lamp: [36.5, 27], chimney: [36.5, 4]};
 const CAPTIONS = [];                                              // sin subtítulos
 
@@ -316,16 +357,16 @@ function scene(t, dt) {
   // viñeta y apertura desde negro
   const g = ctx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  const fade = 1 - clamp(t / 1.6); if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
+  const fade = 1 - clamp(t / .6); if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${fade})`; ctx.fillRect(0, 0, W, H); }
   shake = smooth(.5, 1, up) * 7;
   // sonido ligado al movimiento
   if (AC && t >= T_GO) {
     rumbleG.gain.value = lerp(.04, 1.7, Math.pow(up, .55)); rumbleF.frequency.value = 90 + 520 * up;
     beat += dt * (2.5 + 17 * up); if (beat >= 1) { beat--; burst(900 + up * 700, 2.5, .05, .05 + 1.1 * up * up); burst(110, 1, .09, .08 + 1.1 * up, 'lowpass'); burst(260, .8, .16, .05 + .9 * up, 'lowpass'); }
   }
-  if (t > 7.5 && !hornA) { hornA = true; horn(.8); }
-  if (t > 10.8 && !hornB) { hornB = true; horn(1.5); }
-  if (t > 12.8 && !hornC) { hornC = true; horn(2.2); }
+  if (t > T_ARRIVE * .536 && !hornA) { hornA = true; horn(.8); }      // los silbatos siguen el ritmo de la llegada
+  if (t > T_ARRIVE * .771 && !hornB) { hornB = true; horn(1.5); }
+  if (t > T_ARRIVE * .914 && !hornC) { hornC = true; horn(2.2); }
 }
 
 function caption(t) {
