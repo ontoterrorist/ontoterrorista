@@ -99,7 +99,7 @@ nav.cats a.on::before{color:var(--orange)}
 .faq .lectura b{color:var(--cream);font-weight:700}
 
 /* animaciones: campo naranja con dos palabras gigantes cortadas por abajo */
-.anim-campo{background:var(--orange);color:var(--night);overflow:hidden;--sz:clamp(110px,21vw,320px);padding-bottom:0}
+.anim-campo{background:var(--orange);color:var(--night);overflow:hidden;--sz:clamp(90px,12vw,190px);padding-bottom:0}
 .anim-campo h2{grid-column:1/span 5;color:var(--night)}
 .anim-campo .txt{grid-column:7/-1;font-size:var(--md);line-height:1.5;color:var(--night)}
 .anim-campo .txt p{margin:0 0 18px}
@@ -109,7 +109,7 @@ nav.cats a.on::before{color:var(--orange)}
 .espec figure{margin:0}
 .espec figure:first-child{grid-column:1/span 6}
 .espec figure:last-child{grid-column:7/-1}
-.espec span{display:block;padding-top:.12em;font:700 var(--sz)/.8 var(--ficha);color:var(--night)}
+.espec span{display:block;white-space:nowrap;padding-top:.12em;font:700 var(--sz)/.8 var(--ficha);color:var(--night)}
 
 /* repositorios */
 .repos h2{grid-column:1/-1;margin-bottom:40px}
@@ -154,7 +154,7 @@ nav.cats a.on::before{color:var(--orange)}
   .espec figure{height:30svh;overflow:hidden}
   .espec figure:last-child{background:var(--night);margin:0 calc(-1 * var(--m));padding:0 var(--m)}
   .espec figure:last-child span{color:var(--orange)}
-  .espec span{font-size:40vw}
+  .espec span{font-size:24vw}
   .blogs .pola,.repos .pola{grid-column:1/-1;max-width:300px;justify-self:center}
   .repos .filas li{flex-wrap:wrap;min-height:44px}
   .repos .filas span{text-align:left;width:100%}
@@ -259,12 +259,12 @@ nav.cats a.on::before{color:var(--orange)}
   <section class="g anim-campo" id="animaciones" aria-labelledby="t-anim">
     <h2 id="t-anim" class="rv" style="--i:0">Animaciones</h2>
     <div class="txt rv" style="--i:1">
-      <p>La primera animación es la llegada del tren. A los 0 segundos asoma por la cresta; a los 3 llega y se quiebra la pantalla. Puedes verla de nuevo cuando quieras.</p>
+      <p>La primera animación es la llegada del tren. A los 0 segundos asoma por la cresta; a los 2,5 llega y se quiebra la pantalla. Puedes verla de nuevo cuando quieras.</p>
       <button class="again" type="button">▶ Ver llegar el tren</button>
     </div>
-    <div class="espec rv" style="--i:2" role="img" aria-label="0 segundos y 3 segundos">
+    <div class="espec rv" style="--i:2" role="img" aria-label="0 segundos y 2,5 segundos">
       <figure><span>0 s</span></figure>
-      <figure><span>3 s</span></figure>
+      <figure><span>2,5 s</span></figure>
     </div>
   </section>
 
@@ -315,7 +315,7 @@ const img = n => new Promise(r => { const i = new Image(); i.onload = () => r(i)
 let cielo, nubes, primer, tren, humo, W = 768, H = 512, S = 1, ox = 0, oy = 0;
 
 // ---------- parámetros de la cinemática ----------
-const T_GO = 0, T_RISE = 0, T_ARRIVE = 3.0, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
+const T_GO = 0, T_RISE = 0, T_ARRIVE = 2.5, T_CRACK = 0.9, T_FALL = 1.9;    // segundos
 const SPR = {ax: 36.5, ay: 108.5, w: 74, h: 110, lamp: [36.5, 27], chimney: [36.5, 4]};
 const CAPTIONS = [];                                              // sin subtítulos
 
