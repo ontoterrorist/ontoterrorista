@@ -30,7 +30,6 @@ body{min-height:100svh}
 :where(#bio) h2{font:700 var(--h2)/1.15 var(--ficha);margin:0;color:var(--cream)}
 :where(#bio) p{margin:0}
 .fondo{position:fixed;inset:0;z-index:-1;background:var(--night) url(montana-otono.png) 50% 60%/cover;image-rendering:pixelated}
-.fondo .lienzo{position:absolute;inset:0;width:100%;height:100%}
 .fondo::after{content:"";position:absolute;inset:0;background:rgba(38,22,17,.88)}
 .g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;padding:var(--gap) var(--m)}
 
@@ -707,8 +706,7 @@ Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('t
 </script>
 
 <script>
-// viento: ráfagas que mecen las polaroids y las fichas, y la montaña de fondo, donde el follaje se balancea un píxel
-// y el agua de la laguna ondula con los cuadros de movimiento que generó PixelLab.
+// viento: ráfagas que mecen un par de grados las polaroids y las fichas. El fondo de montaña queda quieto.
 // Solo corre cuando la cinemática terminó, con la pestaña visible y si el sistema no pide movimiento reducido.
 (() => {
   'use strict';
@@ -718,85 +716,12 @@ Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('t
   let last = 0, t = 0;
   const ráfaga = t => Math.max(0, .55 + .4 * Math.sin(t * .31) * Math.sin(t * .13 + 1) + .22 * Math.sin(t * 1.1));
 
-  // ---- la pintura de fondo, viva: 16 cuadros de movimiento generados con PixelLab (montana-viento.png) ----
-  // La hoja trae la montaña a 229x128 en una cuadrícula de 4x4. Se suma la diferencia de cada cuadro con el primero,
-  // ampliada 3 veces, a la pintura original de 687x384: se conserva el detalle y solo se mueve lo que PixelLab movió.
-  const SW = 687, SH = 384, FW = 229, FH = 128, NF = 16;
-  const hero = document.querySelector('.hero'), fondo = document.querySelector('.fondo'), imgHero = hero && hero.querySelector('img.cuadro');
-  let off, og, base, deltas = null, pintura, lienzoHero, lienzoFondo, fase = 0, ultimo = -1;
-  const foto = new Image(), hoja = new Image();
-  let cargadas = 0;
-  function preparar() {
-    if (++cargadas < 2) return;
-    try {
-      off = document.createElement('canvas'); off.width = SW; off.height = SH;
-      og = off.getContext('2d', {willReadFrequently: true}); og.drawImage(foto, 0, 0);
-      base = og.getImageData(0, 0, SW, SH).data;
-      const h = document.createElement('canvas'); h.width = hoja.width; h.height = hoja.height;
-      const hg = h.getContext('2d', {willReadFrequently: true}); hg.drawImage(hoja, 0, 0);
-      const px = hg.getImageData(0, 0, h.width, h.height).data, W4 = h.width;
-      const rgb = (f, x, y, c) => px[((((f / 4) | 0) * FH + y) * W4 + (f % 4) * FW + x) * 4 + c];
-      const region = new Uint8Array(FW * FH);                            // solo se mueve el follaje (tonos cálidos saturados) y la laguna
-      for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) {
-        const r = rgb(0, x, y, 0), g = rgb(0, x, y, 1), b = rgb(0, x, y, 2), mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-        region[y * FW + x] = y >= 86 || (mx > 90 && (mx - mn) / mx > .5) ? 1 : 0;
-      }
-      deltas = [];
-      for (let f = 0; f < NF; f++) {
-        const d = new Int16Array(FW * FH * 3);
-        for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) {
-          if (!region[y * FW + x]) continue;
-          const dr = rgb(f, x, y, 0) - rgb(0, x, y, 0), dg = rgb(f, x, y, 1) - rgb(0, x, y, 1), db = rgb(f, x, y, 2) - rgb(0, x, y, 2);
-          if (Math.abs(dr) + Math.abs(dg) + Math.abs(db) < 30) continue;   // el ruido leve del modelo no cuenta como movimiento
-          const i = (y * FW + x) * 3, tope = v => v < -50 ? -50 : v > 50 ? 50 : v;
-          d[i] = tope(dr); d[i + 1] = tope(dg); d[i + 2] = tope(db);
-        }
-        deltas.push(d);
-      }
-      pintura = og.createImageData(SW, SH);
-    } catch (e) { deltas = null; }                                       // por ejemplo al abrir el archivo sin servidor: queda la imagen quieta
-  }
-  foto.onload = hoja.onload = preparar;
-  foto.src = 'montana-otono.png'; hoja.src = 'montana-viento.png';
-  function lienzo(padre, clase) {
-    const c = document.createElement('canvas'); c.className = clase; c.setAttribute('aria-hidden', 'true'); padre.insertBefore(c, padre.firstChild); return c;
-  }
-  function mover(f, k) {
-    const d = deltas[f], o = pintura.data;
-    for (let y = 0; y < SH; y++) {
-      const fy = (y / 3) | 0;
-      for (let x = 0; x < SW; x++) {
-        const di = (fy * FW + ((x / 3) | 0)) * 3, i = (y * SW + x) * 4;
-        for (let c = 0; c < 3; c++) { const v = base[i + c] + k * d[di + c]; o[i + c] = v < 0 ? 0 : v > 255 ? 255 : v; }
-        o[i + 3] = 255;
-      }
-    }
-    og.putImageData(pintura, 0, 0);
-  }
-  function volcar(c, fx, fy) {
-    const w = c.clientWidth, h = c.clientHeight; if (!w || !h) return;
-    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
-    const k = Math.max(w / SW, h / SH), dw = SW * k, dh = SH * k, g = c.getContext('2d');
-    g.imageSmoothingEnabled = false; g.drawImage(off, (w - dw) * fx, (h - dh) * fy, dw, dh);
-  }
-  function pintar(dt, g) {
-    if (!deltas) return;
-    fase += dt * (5 + 4 * g);                                            // más ráfaga, más rápido; los cuadros van y vuelven
-    const i = Math.floor(fase) % (2 * NF - 2), f = i < NF ? i : 2 * NF - 2 - i;
-    if (f === ultimo) return;
-    ultimo = f;
-    mover(f, 1 + .8 * g);
-    if (!lienzoHero) { lienzoHero = lienzo(hero, 'cuadro'); lienzoFondo = lienzo(fondo, 'lienzo'); }
-    volcar(lienzoHero, .5, .62); volcar(lienzoFondo, .5, .6);
-    if (imgHero && imgHero.style.display !== 'none') imgHero.style.display = 'none';
-  }
   function cuadro(now) {
     requestAnimationFrame(cuadro);
     const dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
     if (document.hidden || !stage.classList.contains('done')) return;
     t += dt;
     const g = ráfaga(t);
-    pintar(dt, g);
     colgantes.forEach((el, i) => el.style.setProperty('--s', (g * 1.3 * Math.sin(t * 1.7 + i * 1.3)).toFixed(2) + 'deg'));
   }
   requestAnimationFrame(cuadro);
