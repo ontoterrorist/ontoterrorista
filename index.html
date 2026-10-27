@@ -17,34 +17,41 @@
   --paso:80ms; --entrada:600ms; --riel:#6b4430;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body)}
+html{background:var(--night)}
+body{margin:0;background:transparent;color:var(--ink);font-family:var(--body)}
 body{min-height:100svh}
 
 /* ---------- biografía (debajo del escenario): álbum de polaroids, máquina de escribir y letra a mano ---------- */
 :root{--m:clamp(16px,2.4vw,36px);--gap:clamp(72px,10vw,176px);--lg:clamp(20px,1.7vw,24px);--h2:clamp(26px,2.8vw,40px);--md:16px;--sm:14px;--F:min(13vw,196px);
   --ficha:'Courier Prime','Courier New',ui-serif,serif;--mano:'Caveat','Segoe Print',cursive}
-#bio{position:relative;display:block;padding:0;background:var(--night);color:var(--ink);font:400 var(--md)/1.6 var(--ficha)}
+#bio{position:relative;display:block;padding:0;background:transparent;color:var(--ink);font:400 var(--md)/1.6 var(--ficha)}
 :where(#bio) a{color:inherit}
 :where(#bio) :focus-visible{outline:3px solid var(--cream);outline-offset:3px}
 :where(#bio) h2{font:700 var(--h2)/1.15 var(--ficha);margin:0;color:var(--cream)}
 :where(#bio) p{margin:0}
+.fondo{position:fixed;inset:0;z-index:-1;background:var(--night) url(montana-otono.png) 50% 60%/cover;image-rendering:pixelated}
+.fondo::after{content:"";position:absolute;inset:0;background:rgba(38,22,17,.88)}
 .g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;padding:var(--gap) var(--m)}
 
 /* polaroid: marco crema, foto cuadrada, pie con letra a mano, un poco torcida y pegada con cinta */
 .pola{position:relative;margin:0;padding:clamp(8px,1vw,14px) clamp(8px,1vw,14px) 0;background:var(--cream);color:var(--night);rotate:var(--r,0deg)}
 .pola::before{content:"";position:absolute;z-index:1;top:-13px;left:50%;width:30%;min-width:56px;height:26px;margin-left:-15%;background:var(--sky);opacity:.72;rotate:-4deg}
 .pola .foto{position:relative;aspect-ratio:1;overflow:hidden;background:var(--panel)}
-.pola img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:sepia(.7) saturate(1.15) contrast(.96)}
-body[data-modo=noche] .pola img{filter:sepia(.7) saturate(1) contrast(.96) brightness(.68)}
+.pola img{display:block;width:100%;height:100%;object-fit:cover;transform:scale(var(--z,1));transform-origin:var(--ox,50%) var(--oy,50%);image-rendering:pixelated;filter:sepia(.18) saturate(1.05) contrast(.98)}
+body[data-modo=noche] .pola img{filter:sepia(.18) saturate(.95) contrast(.96) brightness(.68)}
 body[data-modo=atardecer] .pola img{filter:sepia(.45) saturate(1.05) brightness(.85)}
 .pola figcaption{padding:10px 4px 14px;font:700 clamp(22px,1.9vw,28px)/1.05 var(--mano);text-align:center;color:var(--night)}
 
 /* primera pantalla: dos campos que se juntan a media altura; el nombre se parte en la costura */
-.hero{position:relative;height:100svh;min-height:600px;overflow:hidden;background:var(--night)}
-.hero::before{content:"";position:absolute;left:0;right:0;top:50%;bottom:0;background:var(--sky)}
+.hero{position:relative;isolation:isolate;height:100svh;min-height:600px;overflow:hidden;background:var(--night)}
+.hero .cuadro{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover;object-position:50% 62%;image-rendering:pixelated}
+.hero::before,.hero::after{content:"";position:absolute;left:0;right:0;z-index:0}
+.hero::before{top:0;bottom:50%;background:rgba(38,22,17,.5)}
+.hero::after{top:50%;bottom:0;background:rgba(38,22,17,.7)}
+.hero h1,.hero .bajo,.hero .pie,.hero .pola{z-index:1}
 .hero h1,.hero .bajo{position:absolute;left:0;right:0;top:calc(50% - 1.35 * var(--F));margin:0;font:700 var(--F)/.9 var(--ficha);text-align:center;white-space:nowrap}
 .hero h1{color:var(--cream);clip-path:inset(0 0 .45em 0)}
-.hero .bajo{color:var(--night);clip-path:inset(1.35em 0 0 0);pointer-events:none}
+.hero .bajo{color:var(--sky);clip-path:inset(1.35em 0 0 0);pointer-events:none}
 .hero .l{display:block;overflow:hidden;padding:.05em 0;margin:-.05em 0}
 .hero .l i{display:block;font-style:normal}
 .hero .pola{position:absolute;width:clamp(130px,12vw,180px)}
@@ -57,11 +64,11 @@ nav.cats a::before{content:'■ ';color:var(--riel)}
 nav.cats a:hover,nav.cats a.on{color:var(--cream)}
 nav.cats a.on::before{color:var(--orange)}
 .hero .pie{position:absolute;left:var(--m);right:var(--m);bottom:clamp(28px,5vh,56px);display:flex;justify-content:space-between;align-items:flex-end;gap:28px}
-.hero .pie p{max-width:36ch;font:400 var(--lg)/1.35 var(--ficha);color:var(--night)}
+.hero .pie p{max-width:36ch;font:400 var(--lg)/1.35 var(--ficha);color:var(--cream)}
 .again{font:700 16px/1 var(--ficha);color:var(--night);background:var(--orange);border:0;border-radius:0;padding:18px 24px;cursor:pointer;white-space:nowrap}
 .again:hover{background:var(--cream)}
 .again:active{transform:translate(2px,2px)}
-.hero :focus-visible,.anim-campo :focus-visible,.cierre :focus-visible,.pola :focus-visible{outline-color:var(--night)}
+.anim-campo :focus-visible,.cierre :focus-visible,.pola :focus-visible{outline-color:var(--night)}
 
 /* qué me interesa: cuatro fichas de papel sobre la página del álbum */
 .intro h2{grid-column:1/-1;margin-bottom:28px}
@@ -81,8 +88,8 @@ nav.cats a.on::before{color:var(--orange)}
 .blogs h2{margin-bottom:28px}
 .blogs .txt p{font:400 var(--lg)/1.4 var(--ficha);max-width:36ch}
 .blogs .pola{grid-column:8/span 4}
-.cielo img{position:absolute;left:0;top:0;width:130%;height:100%;object-fit:cover;object-position:0 0;image-rendering:pixelated}
-.cielo{background:var(--sky)}
+.cielo img{position:absolute;left:0;top:0;width:150%;height:100%;object-fit:cover;object-position:0 40%;image-rendering:pixelated}
+.cielo{background:var(--panel)}
 .pola.tren img{object-fit:contain;padding:10%}
 
 /* faq: respuestas como texto de lectura */
@@ -195,12 +202,14 @@ nav.cats a.on::before{color:var(--orange)}
 <body>
 
 <main id="bio">
+  <div class="fondo" aria-hidden="true"></div>
   <header class="hero">
+    <img class="cuadro" src="montana-otono.png" alt="" width="688" height="384">
     <nav class="cats" aria-label="Secciones">
       <a href="#blogs">Blogs</a><a href="#faq">FAQ</a><a href="#animaciones">Animaciones</a>
     </nav>
     <figure class="pola pa tren" style="--r:-5deg"><div class="foto"><img src="tren.png" alt="Una locomotora de vapor vista de frente, en pixel art" width="148" height="220"></div><figcaption>La locomotora</figcaption></figure>
-    <figure class="pola pb" style="--r:4deg"><div class="foto"><img src="cielo.png" alt="Una colina con pasto y la vía del tren frente a un mar y montañas lejanas" width="1024" height="1024" style="object-position:50% 70%"></div><figcaption>Mar y montañas</figcaption></figure>
+    <figure class="pola pb" style="--r:4deg"><div class="foto"><img src="montana-otono.png" alt="La cumbre de una montaña en otoño con laderas naranjas y rojas" width="688" height="384" style="--z:1.5;--ox:66%;--oy:30%"></div><figcaption>La cumbre</figcaption></figure>
     <h1 aria-label="ontoterrorista"><span class="l" aria-hidden="true"><i>ONTO</i></span><span class="l" aria-hidden="true"><i>TERRORISTA</i></span></h1>
     <div class="bajo" aria-hidden="true"><span class="l"><i>ONTO</i></span><span class="l"><i>TERRORISTA</i></span></div>
     <div class="pie">
@@ -219,10 +228,10 @@ nav.cats a.on::before{color:var(--orange)}
   </section>
 
   <section class="g album" aria-labelledby="t-album">
-    <h2 id="t-album" class="rv" style="--i:0;grid-column:1/-1;margin-bottom:56px">Álbum de la colina</h2>
-    <figure class="pola rv" style="--i:1;--r:-3deg"><div class="foto"><img src="cielo.png" alt="Montañas azules y un mar lejano vistos desde la cresta de una colina" width="1024" height="1024" loading="lazy" style="object-position:50% 52%"></div><figcaption>Desde la cresta</figcaption></figure>
-    <figure class="pola rv" style="--i:2;--r:2deg"><div class="foto"><img src="bg.png" alt="Los rieles de la vía vistos de frente, entre pasto y arbustos" width="512" height="512" loading="lazy" style="object-position:50% 92%"></div><figcaption>La vía</figcaption></figure>
-    <figure class="pola rv" style="--i:3;--r:-1.5deg"><div class="foto"><img src="cielo.png" alt="Un cielo azul con nubes de pixel art sobre las montañas" width="1024" height="1024" loading="lazy" style="object-position:20% 12%"></div><figcaption>Cielo despejado</figcaption></figure>
+    <h2 id="t-album" class="rv" style="--i:0;grid-column:1/-1;margin-bottom:56px">Álbum de otoño</h2>
+    <figure class="pola rv" style="--i:1;--r:-3deg"><div class="foto"><img src="montana-otono.png" alt="Bosque de laderas naranjas y rojas sobre un valle en otoño" width="688" height="384" loading="lazy" style="--z:1.9;--ox:20%;--oy:42%"></div><figcaption>Hojas de octubre</figcaption></figure>
+    <figure class="pola rv" style="--i:2;--r:2deg"><div class="foto"><img src="montana-otono.png" alt="Pinos oscuros entre árboles naranjas en la ladera derecha de la montaña" width="688" height="384" loading="lazy" style="--z:1.9;--ox:88%;--oy:45%"></div><figcaption>Pinos al borde</figcaption></figure>
+    <figure class="pola rv" style="--i:3;--r:-1.5deg"><div class="foto"><img src="montana-otono.png" alt="Un lago quieto que refleja la luz dorada de la tarde" width="688" height="384" loading="lazy" style="--z:1.9;--ox:50%;--oy:88%"></div><figcaption>El lago</figcaption></figure>
   </section>
 
   <section class="g blogs" id="blogs" aria-labelledby="t-blogs">
@@ -230,7 +239,7 @@ nav.cats a.on::before{color:var(--orange)}
       <h2 id="t-blogs" class="rv" style="--i:0">Blogs</h2>
       <p class="rv" style="--i:1">Todavía no hay entradas. Las notas sobre filosofía de la ciencia cognitiva y mente extendida van a aparecer aquí.</p>
     </div>
-    <figure class="pola rv" style="--i:2;--r:2.5deg"><div class="foto cielo"><img src="nubes.png" alt="Nubes de pixel art que cruzan despacio un cielo azul" width="1024" height="1024" loading="lazy"></div><figcaption>Nubes, sin apuro</figcaption></figure>
+    <figure class="pola rv" style="--i:2;--r:2.5deg"><div class="foto cielo"><img src="montana-otono.png" alt="Laderas de otoño que se desplazan despacio, vistas desde el valle" width="688" height="384" loading="lazy"></div><figcaption>Valle, sin apuro</figcaption></figure>
   </section>
 
   <section class="g faq" id="faq" aria-labelledby="t-faq">
