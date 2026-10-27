@@ -7,75 +7,91 @@
 <meta name="description" content="Un tren llega por la colina, la pantalla se quiebra y aparece una mini descripción de los intereses filosóficos de ontoterrorista.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Courier+Prime:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{
   --night:#0d1430; --panel:#16224a; --panel2:#1d2d5e; --sky:#6fa6e8; --cream:#f3e9d2;
   --orange:#e8743b; --leaf:#8fb85a; --ink:#e9e4d4; --mute:#9db0d8;
-  --px:'Press Start 2P',system-ui,sans-serif; --body:'Pixelify Sans',system-ui,sans-serif;
+  --px:'Press Start 2P',system-ui,sans-serif; --body:'Courier Prime','Courier New',serif;
   --paso:80ms; --entrada:600ms; --riel:#2c3f7a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body)}
 body{min-height:100svh}
 
-/* ---------- biografía (debajo del escenario): dirección "tipografía y nada más", pixel nocturno ---------- */
-:root{--m:clamp(16px,2.4vw,36px);--gap:clamp(72px,10vw,176px);--lg:clamp(20px,1.7vw,24px);--h2:clamp(20px,2.2vw,32px);--md:16px;--sm:14px;--F:min(8.6vw,128px)}
-#bio{position:relative;display:block;padding:0;background:var(--night);color:var(--ink);font-size:var(--md);line-height:1.55}
+/* ---------- biografía (debajo del escenario): álbum de polaroids, máquina de escribir y letra a mano ---------- */
+:root{--m:clamp(16px,2.4vw,36px);--gap:clamp(72px,10vw,176px);--lg:clamp(20px,1.7vw,24px);--h2:clamp(26px,2.8vw,40px);--md:16px;--sm:14px;--F:min(13vw,196px);
+  --ficha:'Courier Prime','Courier New',ui-serif,serif;--mano:'Caveat','Segoe Print',cursive}
+#bio{position:relative;display:block;padding:0;background:var(--night);color:var(--ink);font:400 var(--md)/1.6 var(--ficha)}
 :where(#bio) a{color:inherit}
 :where(#bio) :focus-visible{outline:3px solid var(--cream);outline-offset:3px}
-:where(#bio) h2{font:400 var(--h2)/1.2 var(--px);margin:0;color:var(--cream)}
+:where(#bio) h2{font:700 var(--h2)/1.15 var(--ficha);margin:0;color:var(--cream)}
 :where(#bio) p{margin:0}
 .g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;padding:var(--gap) var(--m)}
-body[data-modo=noche] .pic{filter:brightness(.6) saturate(.85)}
-body[data-modo=atardecer] .pic{filter:sepia(.35) saturate(1.1) brightness(.8)}
+
+/* polaroid: marco crema, foto cuadrada, pie con letra a mano, un poco torcida y pegada con cinta */
+.pola{position:relative;margin:0;padding:clamp(8px,1vw,14px) clamp(8px,1vw,14px) 0;background:var(--cream);color:var(--night);rotate:var(--r,0deg)}
+.pola::before{content:"";position:absolute;z-index:1;top:-13px;left:50%;width:30%;min-width:56px;height:26px;margin-left:-15%;background:var(--sky);opacity:.72;rotate:-4deg}
+.pola .foto{position:relative;aspect-ratio:1;overflow:hidden;background:var(--panel)}
+.pola img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:sepia(.28) saturate(.92) contrast(.96)}
+body[data-modo=noche] .pola img{filter:sepia(.28) saturate(.8) contrast(.96) brightness(.68)}
+body[data-modo=atardecer] .pola img{filter:sepia(.45) saturate(1.05) brightness(.85)}
+.pola figcaption{padding:10px 4px 14px;font:700 clamp(22px,1.9vw,28px)/1.05 var(--mano);text-align:center;color:var(--night)}
 
 /* primera pantalla: dos campos que se juntan a media altura; el nombre se parte en la costura */
-.hero{position:relative;height:100svh;min-height:560px;overflow:hidden;background:var(--night)}
+.hero{position:relative;height:100svh;min-height:600px;overflow:hidden;background:var(--night)}
 .hero::before{content:"";position:absolute;left:0;right:0;top:50%;bottom:0;background:var(--sky)}
-.hero h1,.hero .bajo{position:absolute;left:0;right:0;top:calc(50% - 1.35 * var(--F));margin:0;font:400 var(--F)/.9 var(--px);text-align:center;white-space:nowrap}
+.hero h1,.hero .bajo{position:absolute;left:0;right:0;top:calc(50% - 1.35 * var(--F));margin:0;font:700 var(--F)/.9 var(--ficha);text-align:center;white-space:nowrap}
 .hero h1{color:var(--cream);clip-path:inset(0 0 .45em 0)}
 .hero .bajo{color:var(--night);clip-path:inset(1.35em 0 0 0);pointer-events:none}
 .hero .l{display:block;overflow:hidden;padding:.05em 0;margin:-.05em 0}
 .hero .l i{display:block;font-style:normal}
+.hero .pola{position:absolute;width:clamp(130px,12vw,180px)}
+.hero .pa{left:clamp(24px,8vw,130px);top:clamp(70px,9vh,110px)}
+.hero .pb{right:clamp(24px,8vw,130px);top:clamp(92px,12vh,140px)}
+@media (min-width:701px) and (max-height:720px){.hero .pola{display:none}}
 nav.cats{position:absolute;z-index:2;top:26px;right:var(--m);display:flex;gap:28px}
-nav.cats a{font:600 16px/1.2 var(--body);color:var(--mute);text-decoration:none;padding:6px 0}
+nav.cats a{font:700 15px/1.2 var(--ficha);color:var(--mute);text-decoration:none;padding:6px 0}
 nav.cats a::before{content:'■ ';color:var(--riel)}
 nav.cats a:hover,nav.cats a.on{color:var(--cream)}
 nav.cats a.on::before{color:var(--orange)}
 .hero .pie{position:absolute;left:var(--m);right:var(--m);bottom:clamp(28px,5vh,56px);display:flex;justify-content:space-between;align-items:flex-end;gap:28px}
-.hero .pie p{max-width:34ch;font:400 var(--lg)/1.35 var(--body);color:var(--night)}
-.again{font:600 16px/1 var(--body);color:var(--night);background:var(--orange);border:0;border-radius:0;padding:18px 24px;cursor:pointer;white-space:nowrap}
+.hero .pie p{max-width:36ch;font:400 var(--lg)/1.35 var(--ficha);color:var(--night)}
+.again{font:700 16px/1 var(--ficha);color:var(--night);background:var(--orange);border:0;border-radius:0;padding:18px 24px;cursor:pointer;white-space:nowrap}
 .again:hover{background:var(--cream)}
 .again:active{transform:translate(2px,2px)}
-.hero :focus-visible,.anim-campo :focus-visible,.cierre :focus-visible{outline-color:var(--night)}
+.hero :focus-visible,.anim-campo :focus-visible,.cierre :focus-visible,.pola :focus-visible{outline-color:var(--night)}
 
-/* qué me interesa */
+/* qué me interesa: cuatro fichas de papel sobre la página del álbum */
 .intro h2{grid-column:1/-1;margin-bottom:28px}
-.intro .lead{grid-column:1/-1;font:400 var(--lg)/1.2 var(--body);max-width:none;margin:0 0 72px;color:var(--ink)}
-.intro .col{grid-column:span 3;font-size:16px;line-height:1.5;color:var(--ink)}
-.intro .col b{color:var(--cream);font-weight:600}
+.intro .lead{grid-column:1/-1;font:400 var(--lg)/1.4 var(--ficha);max-width:none;margin:0 0 72px;color:var(--ink)}
+.nota{grid-column:span 3;position:relative;padding:28px 22px 24px;background:var(--cream);color:var(--night);font-size:var(--md);line-height:1.5;rotate:var(--r,0deg)}
+.nota::before{content:"";position:absolute;top:-13px;left:50%;width:34%;height:26px;margin-left:-17%;background:var(--sky);opacity:.72;rotate:3deg}
+.nota b{display:block;margin-bottom:8px;font:700 22px/1.15 var(--mano);color:var(--night)}
 
-/* franjas de imagen a todo el ancho */
-.banda{margin:0;height:min(64vh,640px);overflow:hidden;background:var(--panel)}
-.banda img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+/* álbum: tres polaroids de la misma colina */
+.album{align-items:start;padding-top:0}
+.album .pola{grid-column:span 4}
+.album .pola:nth-child(2){margin-top:56px}
 
 /* blogs */
 .blogs{background:var(--panel);align-items:center}
 .blogs .txt{grid-column:1/span 6}
 .blogs h2{margin-bottom:28px}
-.blogs .txt p{font:400 var(--lg)/1.35 var(--body);max-width:36ch}
-.cielo{grid-column:8/-1;position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--sky)}
+.blogs .txt p{font:400 var(--lg)/1.4 var(--ficha);max-width:36ch}
+.blogs .pola{grid-column:8/span 4}
 .cielo img{position:absolute;left:0;top:0;width:130%;height:100%;object-fit:cover;object-position:0 0;image-rendering:pixelated}
+.cielo{background:var(--sky)}
+.pola.tren img{object-fit:contain;padding:10%}
 
 /* faq: respuestas como texto de lectura */
 .faq h2{grid-column:1/span 3}
 .faq .lectura{grid-column:5/-1;columns:2;column-gap:56px}
 .faq .lectura p{break-inside:avoid;margin:0 0 20px;font-size:16px;line-height:1.55}
-.faq .lectura b{color:var(--cream);font-weight:600}
+.faq .lectura b{color:var(--cream);font-weight:700}
 
 /* animaciones: campo naranja con dos palabras gigantes cortadas por abajo */
-.anim-campo{background:var(--orange);color:var(--night);overflow:hidden;--sz:clamp(96px,14.4vw,230px);padding-bottom:0}
+.anim-campo{background:var(--orange);color:var(--night);overflow:hidden;--sz:clamp(110px,21vw,320px);padding-bottom:0}
 .anim-campo h2{grid-column:1/span 5;color:var(--night)}
 .anim-campo .txt{grid-column:7/-1;font-size:var(--md);line-height:1.5;color:var(--night)}
 .anim-campo .txt p{margin:0 0 18px}
@@ -85,70 +101,75 @@ nav.cats a.on::before{color:var(--orange)}
 .espec figure{margin:0}
 .espec figure:first-child{grid-column:1/span 6}
 .espec figure:last-child{grid-column:7/-1}
-.espec span{display:block;padding-top:.12em;font:400 var(--sz)/.8 var(--px);color:var(--night)}
+.espec span{display:block;padding-top:.12em;font:700 var(--sz)/.8 var(--ficha);color:var(--night)}
 
 /* repositorios */
 .repos h2{grid-column:1/-1;margin-bottom:40px}
 .repos .filas{grid-column:3/span 5;list-style:none;margin:0;padding:0}
 .repos .filas li{display:flex;justify-content:space-between;align-items:baseline;gap:20px;min-height:40px;padding:6px 0}
-.repos .filas a{font:600 16px/1.3 var(--body);color:var(--leaf);text-decoration:none}
+.repos .filas a{font:700 16px/1.3 var(--ficha);color:var(--leaf);text-decoration:none}
 .repos .filas a:hover{color:var(--cream);text-decoration:underline}
 .repos .filas span{font-size:var(--sm);color:var(--mute);text-align:right;line-height:1.3}
-.repos .gh{grid-column:3/span 5;margin-top:36px;justify-self:start;font:600 16px/1 var(--body);color:var(--night);background:var(--leaf);padding:18px 24px;text-decoration:none}
+.repos .gh{grid-column:3/span 5;margin-top:36px;justify-self:start;font:700 16px/1 var(--ficha);color:var(--night);background:var(--leaf);padding:18px 24px;text-decoration:none}
 .repos .gh:hover{background:var(--cream)}
 .repos .gh:active{transform:translate(2px,2px)}
-.repos figure{grid-column:9/-1;grid-row:2/span 2;margin:0;align-self:start}
-.repos figure img{display:block;width:100%;image-rendering:pixelated;background:var(--panel);padding:8%}
-.repos figcaption{margin-top:10px;font-size:var(--sm);color:var(--mute)}
+.repos .pola{grid-column:9/span 4;grid-row:2/span 2;align-self:start}
 
 /* cierre: el nombre primero, los sitios debajo */
 .cierre{background:var(--cream);color:var(--night);padding:var(--gap) var(--m) 36px}
-.cierre .nombre{font:400 calc((100vw - 2 * var(--m)) / 14.4)/1 var(--px);margin:0;color:var(--night);white-space:nowrap;overflow:hidden}
+.cierre .nombre{font:700 calc((100vw - 2 * var(--m)) / 8.7)/1 var(--ficha);margin:0;color:var(--night);white-space:nowrap;overflow:hidden}
 .cierre .sitios{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;margin-top:72px}
-.cierre .lugar{grid-column:1/span 5;font:600 var(--lg)/1.2 var(--body);color:var(--night)}
+.cierre .lugar{grid-column:1/span 5;font:700 var(--lg)/1.2 var(--ficha);color:var(--night)}
 .cierre .links{grid-column:7/-1;display:flex;gap:56px}
 .cierre .links ul{list-style:none;margin:0;padding:0;font-size:16px;line-height:2}
 .cierre .links a{color:var(--night)}
-.cierre .links b{display:block;font-weight:600;color:var(--night)}
+.cierre .links b{display:block;font-weight:700;color:var(--night)}
 .cierre .legal{display:flex;justify-content:space-between;gap:20px;margin-top:96px;font-size:var(--sm);color:var(--night)}
 
 @media (max-width:900px){
-  .intro .col{grid-column:span 6;margin-bottom:28px}
-  .blogs .txt,.cielo,.faq h2,.faq .lectura,.anim-campo h2,.anim-campo .txt,.repos .filas,.repos .gh,.repos figure{grid-column:1/-1}
-  .cielo{margin-top:40px}
+  .nota{grid-column:span 6;margin-bottom:28px}
+  .album .pola{grid-column:span 6}.album .pola:nth-child(3){grid-column:4/span 6}.album .pola:nth-child(2){margin-top:0}
+  .blogs .txt,.faq h2,.faq .lectura,.anim-campo h2,.anim-campo .txt,.repos .filas,.repos .gh{grid-column:1/-1}
+  .blogs .pola{grid-column:3/span 8;margin-top:48px}
   .faq .lectura{columns:1;margin-top:28px}
   .anim-campo .txt{margin-top:24px}
-  .repos figure{grid-row:auto;max-width:280px;margin-top:40px}
+  .repos .pola{grid-column:3/span 6;grid-row:auto;margin-top:56px}
   .cierre .lugar,.cierre .links{grid-column:1/-1}.cierre .links{margin-top:36px}
 }
 @media (max-width:700px){
-  .intro .col{grid-column:1/-1}
+  .nota{grid-column:1/-1}
+  .album .pola,.album .pola:nth-child(3){grid-column:1/-1;max-width:300px;justify-self:center;margin-bottom:36px}
+  .hero .pola{width:38vw}
+  .hero .pa{left:6vw;top:84px}.hero .pb{right:6vw;top:104px}
   .hero .pie{flex-direction:column;align-items:flex-start}
   .espec{display:block;height:auto;margin-top:8vh}
   .espec figure{height:30svh;overflow:hidden}
   .espec figure:last-child{background:var(--night);margin:0 calc(-1 * var(--m));padding:0 var(--m)}
   .espec figure:last-child span{color:var(--orange)}
-  .espec span{font-size:27vw}
+  .espec span{font-size:40vw}
+  .blogs .pola,.repos .pola{grid-column:1/-1;max-width:300px;justify-self:center}
   .repos .filas li{flex-wrap:wrap;min-height:44px}
   .repos .filas span{text-align:left;width:100%}
   .cierre .links{flex-wrap:wrap;gap:28px}
 }
 
-/* ---------- movimiento: a saltos de píxel, solo transform y opacity ---------- */
+/* ---------- movimiento: a saltos de píxel, solo transform, rotate y opacity ---------- */
 @media (prefers-reduced-motion:no-preference){
   @keyframes sube{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes asoma{from{transform:translateY(105%)}to{transform:none}}
   @keyframes parpadeo{50%{opacity:.55}}
   @keyframes deriva{to{transform:translateX(-18%)}}
-  /* la señal maestra: cada línea del nombre sube desde detrás de su base */
   html.anim .hero .l i{transform:translateY(105%)}
   html.anim #bio.in .hero .l i{animation:asoma 660ms steps(6) both}
   html.anim #bio.in .hero .l:nth-child(2) i{animation-delay:110ms}
-  html.anim .hero .pie>*,html.anim nav.cats{opacity:0}
-  html.anim #bio.in .hero .pie>*,html.anim #bio.in nav.cats{animation:sube 480ms steps(3) both;animation-delay:760ms}
-  /* cada parte de cada sección entra una vez, escalonada */
+  html.anim .hero .pie>*,html.anim .hero .pola,html.anim nav.cats{opacity:0}
+  html.anim #bio.in .hero .pie>*,html.anim #bio.in .hero .pola,html.anim #bio.in nav.cats{animation:sube 480ms steps(3) both;animation-delay:760ms}
+  html.anim #bio.in .hero .pb{animation-delay:840ms}
   html.anim .rv:not(.vis){opacity:0}
   html.anim .rv.vis{animation:sube 480ms steps(3) both;animation-delay:calc(var(--i,0) * var(--paso))}
+  /* la polaroid se endereza de un solo paso al pasar el puntero o enfocarla */
+  .pola:focus-within{rotate:0deg}
+  @media (hover:hover){.pola:hover,.nota:hover{rotate:0deg}}
   .again:focus-visible{animation:parpadeo 1.1s steps(2) infinite}
   .cielo img{animation:deriva 120s linear infinite paused}
   .cielo.run img{animation-play-state:running}
@@ -177,6 +198,8 @@ nav.cats a.on::before{color:var(--orange)}
     <nav class="cats" aria-label="Secciones">
       <a href="#blogs">Blogs</a><a href="#faq">FAQ</a><a href="#animaciones">Animaciones</a>
     </nav>
+    <figure class="pola pa tren" style="--r:-5deg"><div class="foto"><img src="tren.png" alt="Una locomotora de vapor vista de frente, en pixel art" width="148" height="220"></div><figcaption>La locomotora</figcaption></figure>
+    <figure class="pola pb" style="--r:4deg"><div class="foto"><img src="cielo.png" alt="Una colina con pasto y la vía del tren frente a un mar y montañas lejanas" width="1024" height="1024" style="object-position:50% 70%"></div><figcaption>Mar y montañas</figcaption></figure>
     <h1 aria-label="ontoterrorista"><span class="l" aria-hidden="true"><i>ONTO</i></span><span class="l" aria-hidden="true"><i>TERRORISTA</i></span></h1>
     <div class="bajo" aria-hidden="true"><span class="l"><i>ONTO</i></span><span class="l"><i>TERRORISTA</i></span></div>
     <div class="pie">
@@ -188,20 +211,25 @@ nav.cats a.on::before{color:var(--orange)}
   <section class="g intro" aria-labelledby="t-intereses">
     <h2 id="t-intereses" class="rv" style="--i:0">Qué me interesa</h2>
     <p class="lead rv" style="--i:1">Pienso la mente como algo que se explica con mecanismos, se vive en primera persona y se extiende hacia el cuerpo y las cosas que usamos. Esta página reúne esas preguntas y los juegos de lógica, metafísica, falacias y ajedrez que he hecho.</p>
-    <p class="col rv" style="--i:2"><b>Filosofía de la ciencia cognitiva.</b> Se pregunta qué hace una ciencia de la mente cuando explica: qué cuenta como un buen modelo, cómo se relacionan la psicología, la neurociencia y la computación, y hasta qué punto una teoría sobre cómo se procesa la información dice algo de lo que es pensar.</p>
-    <p class="col rv" style="--i:3"><b>Explicación mecanicista.</b> Explicar un fenómeno es mostrar el mecanismo que lo produce: sus partes, lo que hacen y cómo están organizadas. En la mente eso lleva a buscar qué componentes del cerebro y del cuerpo hacen posibles la memoria o la atención, y a discutir cuándo una descomposición en partes deja de aclarar algo.</p>
-    <p class="col rv" style="--i:4"><b>Fenomenología.</b> Parte de cómo se vive la experiencia en primera persona: la percepción, el cuerpo propio, el tiempo vivido. Pone a prueba a las explicaciones científicas con una pregunta incómoda, qué se deja fuera cuando se describe la mente solo desde afuera, y obliga a cuidar el vocabulario.</p>
-    <p class="col rv" style="--i:5"><b>Mente extendida.</b> Propone que los procesos cognitivos no terminan en el cráneo: un cuaderno, una herramienta o un mapa pueden formar parte de la forma en que se piensa. Lo que se discute es dónde poner el límite de lo mental y qué criterios permiten decir que algo cuenta como parte de la mente.</p>
+    <p class="nota rv" style="--i:2;--r:-1.5deg"><b>Filosofía de la ciencia cognitiva</b>Se pregunta qué hace una ciencia de la mente cuando explica: qué cuenta como un buen modelo, cómo se relacionan la psicología, la neurociencia y la computación, y hasta qué punto una teoría sobre cómo se procesa la información dice algo de lo que es pensar.</p>
+    <p class="nota rv" style="--i:3;--r:1.2deg"><b>Explicación mecanicista</b>Explicar un fenómeno es mostrar el mecanismo que lo produce: sus partes, lo que hacen y cómo están organizadas. En la mente eso lleva a buscar qué componentes del cerebro y del cuerpo hacen posibles la memoria o la atención, y a discutir cuándo una descomposición en partes deja de aclarar algo.</p>
+    <p class="nota rv" style="--i:4;--r:-.8deg"><b>Fenomenología</b>Parte de cómo se vive la experiencia en primera persona: la percepción, el cuerpo propio, el tiempo vivido. Pone a prueba a las explicaciones científicas con una pregunta incómoda, qué se deja fuera cuando se describe la mente solo desde afuera, y obliga a cuidar el vocabulario.</p>
+    <p class="nota rv" style="--i:5;--r:1.6deg"><b>Mente extendida</b>Propone que los procesos cognitivos no terminan en el cráneo: un cuaderno, una herramienta o un mapa pueden formar parte de la forma en que se piensa. Lo que se discute es dónde poner el límite de lo mental y qué criterios permiten decir que algo cuenta como parte de la mente.</p>
   </section>
 
-  <figure class="banda rv"><img class="pic" src="cielo.png" alt="Una vía de tren sube por una colina cubierta de pasto hacia un mar y unas montañas lejanas" width="1024" height="1024" loading="lazy" style="object-position:50% 62%"></figure>
+  <section class="g album" aria-labelledby="t-album">
+    <h2 id="t-album" class="rv" style="--i:0;grid-column:1/-1;margin-bottom:56px">Álbum de la colina</h2>
+    <figure class="pola rv" style="--i:1;--r:-3deg"><div class="foto"><img src="cielo.png" alt="Montañas azules y un mar lejano vistos desde la cresta de una colina" width="1024" height="1024" loading="lazy" style="object-position:50% 52%"></div><figcaption>Desde la cresta</figcaption></figure>
+    <figure class="pola rv" style="--i:2;--r:2deg"><div class="foto"><img src="bg.png" alt="Los rieles de la vía vistos de frente, entre pasto y arbustos" width="512" height="512" loading="lazy" style="object-position:50% 92%"></div><figcaption>La vía</figcaption></figure>
+    <figure class="pola rv" style="--i:3;--r:-1.5deg"><div class="foto"><img src="cielo.png" alt="Un cielo azul con nubes de pixel art sobre las montañas" width="1024" height="1024" loading="lazy" style="object-position:20% 12%"></div><figcaption>Cielo despejado</figcaption></figure>
+  </section>
 
   <section class="g blogs" id="blogs" aria-labelledby="t-blogs">
     <div class="txt">
       <h2 id="t-blogs" class="rv" style="--i:0">Blogs</h2>
       <p class="rv" style="--i:1">Todavía no hay entradas. Las notas sobre filosofía de la ciencia cognitiva y mente extendida van a aparecer aquí.</p>
     </div>
-    <div class="cielo rv" style="--i:2"><img src="nubes.png" alt="Nubes de pixel art que cruzan despacio un cielo azul" width="1024" height="1024" loading="lazy"></div>
+    <figure class="pola rv" style="--i:2;--r:2.5deg"><div class="foto cielo"><img src="nubes.png" alt="Nubes de pixel art que cruzan despacio un cielo azul" width="1024" height="1024" loading="lazy"></div><figcaption>Nubes, sin apuro</figcaption></figure>
   </section>
 
   <section class="g faq" id="faq" aria-labelledby="t-faq">
@@ -212,13 +240,11 @@ nav.cats a.on::before{color:var(--orange)}
       <p class="rv" style="--i:3"><b>¿Puedo saltar la animación del tren?</b> Sí, con el botón Saltar. Si tu sistema pide movimiento reducido, la animación no se reproduce.</p>
       <p class="rv" style="--i:4"><b>¿Se oye algo?</b> Sí. El sonido del tren se sintetiza en el navegador y hay un botón para silenciarlo mientras corre la animación.</p>
       <p class="rv" style="--i:5"><b>¿Cambia según la hora?</b> Sí. La escena es de día, de atardecer o de noche según el reloj de tu navegador.</p>
-      <p class="rv" style="--i:6"><b>¿Qué tipografías usa?</b> Press Start 2P para los títulos y Pixelify Sans para el texto, ambas de Google Fonts.</p>
+      <p class="rv" style="--i:6"><b>¿Qué tipografías usa?</b> Courier Prime para los títulos y el texto, y Caveat para los pies de las fotos, ambas de Google Fonts. La cinemática usa Press Start 2P.</p>
       <p class="rv" style="--i:7"><b>¿Qué son los otros repositorios?</b> Juegos y herramientas de lógica, falacias, metafísica y ajedrez. Están listados más abajo.</p>
       <p class="rv" style="--i:8"><b>¿Dónde está el código?</b> En el repositorio ontoterrorist/ontoterrorista de GitHub. No usa dependencias: canvas para la imagen y WebAudio para el sonido.</p>
     </div>
   </section>
-
-  <figure class="banda rv"><img class="pic" src="bg.png" alt="Los rieles de la vía vistos de frente, entre pasto y arbustos" width="512" height="512" loading="lazy" style="object-position:50% 92%"></figure>
 
   <section class="g anim-campo" id="animaciones" aria-labelledby="t-anim">
     <h2 id="t-anim" class="rv" style="--i:0">Animaciones</h2>
@@ -246,7 +272,7 @@ nav.cats a.on::before{color:var(--orange)}
       <li><a href="https://github.com/ontoterrorist/ontoterrorista" target="_blank" rel="noopener">ontoterrorista</a><span>esta página</span></li>
     </ul>
     <a class="gh rv" style="--i:2" href="https://github.com/ontoterrorist" target="_blank" rel="noopener">▶ GitHub / ontoterrorist</a>
-    <figure class="rv" style="--i:2"><img src="tren.png" alt="La locomotora de vapor número 35 vista de frente, en pixel art" width="148" height="220" loading="lazy"><figcaption>La locomotora de la cinemática.</figcaption></figure>
+    <figure class="pola tren rv" style="--i:2;--r:-3deg"><div class="foto"><img src="tren.png" alt="La locomotora de vapor número 35 vista de frente, en pixel art" width="148" height="220" loading="lazy"></div><figcaption>La locomotora de la cinemática</figcaption></figure>
   </section>
 
   <footer class="cierre">
