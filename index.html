@@ -10,10 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Courier+Prime:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{
-  --night:#0d1430; --panel:#16224a; --panel2:#1d2d5e; --sky:#6fa6e8; --cream:#f3e9d2;
-  --orange:#e8743b; --leaf:#8fb85a; --ink:#e9e4d4; --mute:#9db0d8;
+  /* otoño: castaña, nogal, mostaza, calabaza, musgo y pergamino */
+  --night:#261611; --panel:#3a2218; --panel2:#4a2c1e; --sky:#dca13a; --cream:#f4e4c1;
+  --orange:#d9622b; --leaf:#a8b34a; --ink:#efe3cc; --mute:#cdae8f;
   --px:'Press Start 2P',system-ui,sans-serif; --body:'Courier Prime','Courier New',serif;
-  --paso:80ms; --entrada:600ms; --riel:#2c3f7a;
+  --paso:80ms; --entrada:600ms; --riel:#6b4430;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body)}
@@ -33,8 +34,8 @@ body{min-height:100svh}
 .pola{position:relative;margin:0;padding:clamp(8px,1vw,14px) clamp(8px,1vw,14px) 0;background:var(--cream);color:var(--night);rotate:var(--r,0deg)}
 .pola::before{content:"";position:absolute;z-index:1;top:-13px;left:50%;width:30%;min-width:56px;height:26px;margin-left:-15%;background:var(--sky);opacity:.72;rotate:-4deg}
 .pola .foto{position:relative;aspect-ratio:1;overflow:hidden;background:var(--panel)}
-.pola img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:sepia(.28) saturate(.92) contrast(.96)}
-body[data-modo=noche] .pola img{filter:sepia(.28) saturate(.8) contrast(.96) brightness(.68)}
+.pola img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:sepia(.7) saturate(1.15) contrast(.96)}
+body[data-modo=noche] .pola img{filter:sepia(.7) saturate(1) contrast(.96) brightness(.68)}
 body[data-modo=atardecer] .pola img{filter:sepia(.45) saturate(1.05) brightness(.85)}
 .pola figcaption{padding:10px 4px 14px;font:700 clamp(22px,1.9vw,28px)/1.05 var(--mano);text-align:center;color:var(--night)}
 
