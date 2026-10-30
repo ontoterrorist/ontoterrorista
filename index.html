@@ -111,6 +111,31 @@ nav.cats a.on::before{color:var(--orange)}
 .espec figure:last-child{grid-column:7/-1}
 .espec span{display:block;white-space:nowrap;padding-top:.12em;font:700 var(--sz)/.8 var(--ficha);color:var(--night)}
 
+
+/* sitios: tira horizontal de polaroids con la captura de cada página de GitHub Pages */
+.sitios-sec{background:var(--panel);padding-bottom:calc(var(--gap) * .7)}
+.sitios-sec .cab{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.sitios-sec h2{margin-bottom:16px}
+.sitios-sec .cab p{max-width:46ch;font:400 var(--lg)/1.4 var(--ficha);color:var(--ink)}
+.sitios-sec .mando{display:flex;align-items:center;gap:12px}
+.sitios-sec .mando span{font:700 var(--sm)/1 var(--ficha);color:var(--mute);margin-right:6px}
+.sitios-sec .mando button{font:700 16px/1 var(--ficha);color:var(--night);background:var(--orange);border:0;border-radius:0;min-width:48px;min-height:48px;cursor:pointer}
+.sitios-sec .mando button:hover{background:var(--cream)}
+.sitios-sec .mando button:active{transform:translate(2px,2px)}
+.sitios-sec .mando button:disabled{background:var(--riel);color:var(--mute);cursor:default;transform:none}
+.tira{grid-column:1/-1;display:flex;gap:clamp(24px,3vw,44px);margin:0 calc(-1 * var(--m));padding:44px var(--m) 36px;list-style:none;overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;scroll-padding:0 var(--m);scrollbar-width:thin;scrollbar-color:var(--orange) var(--night);cursor:grab}
+.tira.arrastra{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.tira::-webkit-scrollbar{height:10px}.tira::-webkit-scrollbar-track{background:var(--night)}.tira::-webkit-scrollbar-thumb{background:var(--orange)}
+.tira li{flex:0 0 clamp(250px,25vw,340px);scroll-snap-align:start}
+.pola.sitio{display:block;text-decoration:none;color:var(--night);padding-bottom:0}
+.pola.sitio .foto{aspect-ratio:3/2}
+body .pola.sitio img{image-rendering:auto;filter:none;transform:none;transition:none}
+.pola.sitio b{display:block;padding:10px 4px 0;font:700 clamp(22px,1.9vw,28px)/1.05 var(--mano);text-align:center;color:var(--night)}
+.pola.sitio em{display:block;padding:4px 6px 0;font:400 var(--sm)/1.4 var(--ficha);font-style:normal;text-align:center;color:var(--night)}
+.pola.sitio u{display:block;padding:10px 4px 14px;font:700 var(--sm)/1 var(--ficha);text-align:center;text-decoration:none;color:var(--orange)}
+.pola.sitio:hover u,.pola.sitio:focus-visible u{text-decoration:underline}
+
 /* repositorios */
 .repos h2{grid-column:1/-1;margin-bottom:40px}
 .repos .filas{grid-column:3/span 5;list-style:none;margin:0;padding:0}
@@ -158,6 +183,8 @@ nav.cats a.on::before{color:var(--orange)}
   .blogs .pola,.repos .pola{grid-column:1/-1;max-width:300px;justify-self:center}
   .repos .filas li{flex-wrap:wrap;min-height:44px}
   .repos .filas span{text-align:left;width:100%}
+  .tira li{flex-basis:72vw}
+  .sitios-sec .mando span{display:none}
   .cierre .links{flex-wrap:wrap;gap:28px}
 }
 
@@ -206,7 +233,7 @@ nav.cats a.on::before{color:var(--orange)}
   <header class="hero">
     <img class="cuadro" src="montana-otono.png" alt="" width="688" height="384">
     <nav class="cats" aria-label="Secciones">
-      <a href="#blogs">Blogs</a><a href="#faq">FAQ</a><a href="#animaciones">Animaciones</a>
+      <a href="#blogs">Blogs</a><a href="#faq">FAQ</a><a href="#animaciones">Animaciones</a><a href="#sitios">Sitios</a>
     </nav>
     <figure class="pola pa tren" style="--r:-5deg"><div class="foto"><img src="tren.png" alt="Una locomotora de vapor vista de frente, en pixel art" width="148" height="220"></div><figcaption>La locomotora</figcaption></figure>
     <figure class="pola pb" style="--r:4deg"><div class="foto"><img src="montana-otono.png" alt="La cumbre de una montaña en otoño con laderas naranjas y rojas" width="688" height="384" style="--z:1.5;--ox:66%;--oy:30%"></div><figcaption>La cumbre</figcaption></figure>
@@ -268,6 +295,25 @@ nav.cats a.on::before{color:var(--orange)}
     </div>
   </section>
 
+  <section class="g sitios-sec" id="sitios" aria-labelledby="t-sitios">
+    <div class="cab rv" style="--i:0">
+      <div><h2 id="t-sitios">Sitios</h2><p>Los juegos y herramientas que tienen página propia en GitHub Pages. Corre la tira hacia el lado.</p></div>
+      <div class="mando"><span>Arrastra o usa las flechas</span><button type="button" id="sit-ant" aria-label="Sitios anteriores">◀</button><button type="button" id="sit-sig" aria-label="Sitios siguientes">▶</button></div>
+    </div>
+    <ul class="tira rv" style="--i:1" id="tira" role="region" aria-label="Páginas de GitHub Pages" tabindex="0">
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/logica-advance/" target="_blank" rel="noopener" style="--r:-2.5deg"><div class="foto"><img src="sitios/logica-advance.jpg" alt="Pantalla de inicio de Lógica Advance" width="600" height="400" loading="lazy" draggable="false"></div><b>Lógica Advance</b><em>Deducción natural estilo Fitch, de la lógica clásica a Gödel</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/logic-advance/" target="_blank" rel="noopener" style="--r:2deg"><div class="foto"><img src="sitios/logic-advance.jpg" alt="Pantalla de inicio de Logic Advance" width="600" height="400" loading="lazy" draggable="false"></div><b>Logic Advance</b><em>La misma deducción natural, en inglés</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/logica-axiomatica/" target="_blank" rel="noopener" style="--r:-1.5deg"><div class="foto"><img src="sitios/logica-axiomatica.jpg" alt="Pantalla de inicio de Lógica Axiomática" width="600" height="400" loading="lazy" draggable="false"></div><b>Lógica Axiomática</b><em>El cálculo de Hilbert, con axiomas y modus ponens</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/logica/" target="_blank" rel="noopener" style="--r:2.5deg"><div class="foto"><img src="sitios/logica.jpg" alt="Pantalla de inicio de Lógica por Árboles" width="600" height="400" loading="lazy" draggable="false"></div><b>Lógica por Árboles</b><em>Tableaux de lógicas no clásicas, con Ramón el pulpo</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/logic-tableaux/" target="_blank" rel="noopener" style="--r:-2deg"><div class="foto"><img src="sitios/logic-tableaux.jpg" alt="Pantalla de inicio de Logic Tableaux" width="600" height="400" loading="lazy" draggable="false"></div><b>Logic Tableaux</b><em>Árboles de verdad de la lógica clásica, en español</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/falacia-advance/" target="_blank" rel="noopener" style="--r:1.5deg"><div class="foto"><img src="sitios/falacia-advance.jpg" alt="Pantalla de inicio de Falacia Advance" width="600" height="400" loading="lazy" draggable="false"></div><b>Falacia Advance</b><em>Aprender a detectar falacias</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/metafisica-advance/" target="_blank" rel="noopener" style="--r:-2.5deg"><div class="foto"><img src="sitios/metafisica-advance.jpg" alt="Pantalla de inicio de Metafísica Advance" width="600" height="400" loading="lazy" draggable="false"></div><b>Metafísica Advance</b><em>Rol de consola portátil: dar y pedir razones</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/lingua-latina/" target="_blank" rel="noopener" style="--r:2deg"><div class="foto"><img src="sitios/lingua-latina.jpg" alt="Pantalla de inicio de Lingua Latina" width="600" height="400" loading="lazy" draggable="false"></div><b>Lingua Latina</b><em>Latín paso a paso, con voz y cartas de repaso</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/ruso/" target="_blank" rel="noopener" style="--r:-1.5deg"><div class="foto"><img src="sitios/ruso.jpg" alt="Pantalla de inicio de Aprende ruso" width="600" height="400" loading="lazy" draggable="false"></div><b>Aprende ruso</b><em>Charlas con Masha, gramática y repaso espaciado</em><u>▶ Abrir</u></a></li>
+      <li><a class="pola sitio" href="https://ontoterrorist.github.io/entrenador-pgn/" target="_blank" rel="noopener" style="--r:1.5deg"><div class="foto"><img src="sitios/entrenador-pgn.jpg" alt="Pantalla de inicio de Entrenador PGN" width="600" height="400" loading="lazy" draggable="false"></div><b>Entrenador PGN</b><em>Repertorio de ajedrez con repetición espaciada</em><u>▶ Abrir</u></a></li>
+    </ul>
+  </section>
+
   <section class="g repos" aria-labelledby="t-repos">
     <h2 id="t-repos" class="rv" style="--i:0">Repositorios</h2>
     <ul class="filas rv" style="--i:1">
@@ -290,7 +336,7 @@ nav.cats a.on::before{color:var(--orange)}
     <div class="sitios">
       <a class="lugar" href="https://github.com/ontoterrorist" target="_blank" rel="noopener">github.com/ontoterrorist</a>
       <div class="links">
-        <ul><li><b>Secciones</b></li><li><a href="#blogs">Blogs</a></li><li><a href="#faq">FAQ</a></li><li><a href="#animaciones">Animaciones</a></li></ul>
+        <ul><li><b>Secciones</b></li><li><a href="#blogs">Blogs</a></li><li><a href="#faq">FAQ</a></li><li><a href="#animaciones">Animaciones</a></li><li><a href="#sitios">Sitios</a></li></ul>
         <ul><li><b>Código</b></li><li><a href="https://github.com/ontoterrorist/ontoterrorista" target="_blank" rel="noopener">Esta página</a></li><li><a href="https://github.com/ontoterrorist" target="_blank" rel="noopener">Todos los repositorios</a></li></ul>
       </div>
     </div>
@@ -578,7 +624,7 @@ const catLinks = [...document.querySelectorAll('nav.cats a')];
 const activo = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) catLinks.forEach(a => {
   const on = a.hash === '#' + e.target.id; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
 }); }), {rootMargin: '-20% 0px -60% 0px'});
-['blogs', 'faq', 'animaciones'].forEach(id => activo.observe(document.getElementById(id)));
+['blogs', 'faq', 'animaciones', 'sitios'].forEach(id => activo.observe(document.getElementById(id)));
 const cielo2 = document.querySelector('.cielo');                  // las nubes solo derivan mientras se ven
 new IntersectionObserver(es => es.forEach(e => cielo2.classList.toggle('run', e.isIntersecting))).observe(cielo2);
 
@@ -725,6 +771,29 @@ Promise.all([img('cielo.png'), img('nubes.png'), img('primer-plano.png'), img('t
     colgantes.forEach((el, i) => el.style.setProperty('--s', (g * 1.3 * Math.sin(t * 1.7 + i * 1.3)).toFixed(2) + 'deg'));
   }
   requestAnimationFrame(cuadro);
+})();
+</script>
+
+<script>
+// sitios: la tira se corre con flechas, rueda, teclado o arrastrando con el ratón
+(() => {
+  const tira = document.getElementById('tira'), ant = document.getElementById('sit-ant'), sig = document.getElementById('sit-sig');
+  if (!tira) return;
+  const paso = () => Math.max(240, tira.clientWidth * .7);
+  const estado = () => { ant.disabled = tira.scrollLeft < 4; sig.disabled = tira.scrollLeft > tira.scrollWidth - tira.clientWidth - 4; };
+  const suave = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  ant.onclick = () => tira.scrollBy({left: -paso(), behavior: suave});
+  sig.onclick = () => tira.scrollBy({left: paso(), behavior: suave});
+  tira.addEventListener('scroll', estado, {passive: true}); addEventListener('resize', estado); estado();
+  tira.addEventListener('keydown', e => { if (e.target !== tira) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); sig.click(); } else if (e.key === 'ArrowLeft') { e.preventDefault(); ant.click(); } });
+  let x0 = 0, s0 = 0, tirando = false, movio = false;
+  tira.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; tirando = true; movio = false; x0 = e.clientX; s0 = tira.scrollLeft; });
+  addEventListener('pointermove', e => { if (!tirando) return; const dx = e.clientX - x0;
+    if (!movio && Math.abs(dx) > 5) { movio = true; tira.classList.add('arrastra'); }
+    if (movio) tira.scrollLeft = s0 - dx; });
+  addEventListener('pointerup', () => { if (!tirando) return; tirando = false; tira.classList.remove('arrastra'); });
+  tira.addEventListener('click', e => { if (movio) { e.preventDefault(); e.stopPropagation(); movio = false; } }, true);
 })();
 </script>
 </body>
